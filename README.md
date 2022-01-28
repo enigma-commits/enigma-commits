@@ -1,4 +1,4 @@
-<h1 align="center">Hi 👋, I'm Ratnesh Kumar Tiwari</h1>
+<h1 align="center">Hi 👋, I'm Akhilesh Singh Bhadauriya</h1>
 <h3 align="center">A Competitive Programmer and Full Stack Developer</h3>
 
 - 🌱 I’m currently learning **Data Structure and Algorithms**
