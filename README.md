@@ -1,26 +1,123 @@
-<h1 align="center">Hi 👋, I'm Akhilesh Singh Bhadauriya</h1>
-<h3 align="center">A Competitive Programmer and Full Stack Developer</h3>
+<div align="center">
+  <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=25&duration=3000&pause=1000&color=00D9FF&center=true&vCenter=true&width=900&lines=Hey+there!+I'm+Akhilesh+%F0%9F%91%8B;Building+Scalable+Systems+%26+Solving+Problems;Open+Source+Enthusiast;Competitive+Programmer" alt="Typing SVG" />
+</div>
 
-- 🌱 I’m currently learning **Data Structure and Algorithms**
+---
 
-- 👨‍💻 Website [https://enigma-commits.github.io/Portfolio.A/](https://enigma-commits.github.io/Portfolio.A/)
+### 👨‍💻 About Me
 
-- 📫 How to reach me **akhileshsingh2314@gmail.com**
+I'm a **Software Development Engineer** at **Nammayatri**, passionate about building high-performance distributed systems and solving complex engineering challenges. When I'm not architecting scalable solutions, you'll find me contributing to open-source projects or competing in programming contests.
 
-<h3 align="left">Connect with me:</h3>
-<p align="left">
-<a href="https://www.linkedin.com/in/akhilesh-singh-bhadauria-57750b198/" target="blank"><img align="center" src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/linked-in-alt.svg" alt="akhilesh bhadauriya" height="30" width="40" /></a>
-<a href="https://www.codechef.com/users/absolute_loser" target="blank"><img align="center" src="https://cdn.jsdelivr.net/npm/simple-icons@3.1.0/icons/codechef.svg" alt="akhilesh" height="30" width="40" /></a>
-<a href="https://codeforces.com/profile/absolute_looser" target="blank"><img align="center" src="https://cdn.jsdelivr.net/npm/simple-icons@3.0.1/icons/codeforces.svg" alt="akhilesh" height="30" width="40" /></a>
-<a href="https://www.leetcode.com/akhileshsingh2314" target="blank"><img align="center" src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/leet-code.svg" alt="akhilesh" height="30" width="40" /></a>
-<a href="https://auth.geeksforgeeks.org/user/absolutelooser/profile" target="blank"><img align="center" src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/geeks-for-geeks.svg" alt="akhilesh" height="30" width="40" /></a>
-</p>
+- 🚀 Currently working on **multimodal transport systems** and **high-performance GTFS services**
+- 🏗️ Building scalable infrastructure handling **350K+ operations/hour**
+- 💡 Love solving problems with elegant code and efficient algorithms
 
-<h3 align="left">Languages and Tools:</h3>
-<p align="left"> <a href="https://babeljs.io/" target="_blank"> <img src="https://www.vectorlogo.zone/logos/babeljs/babeljs-icon.svg" alt="babel" width="40" height="40"/> </a> <a href="https://getbootstrap.com" target="_blank"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/bootstrap/bootstrap-plain-wordmark.svg" alt="bootstrap" width="40" height="40"/> </a> <a href="https://www.cprogramming.com/" target="_blank"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/c/c-original.svg" alt="c" width="40" height="40"/> </a> <a href="https://www.w3schools.com/cpp/" target="_blank"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/cplusplus/cplusplus-original.svg" alt="cplusplus" width="40" height="40"/> </a> <a href="https://www.w3schools.com/css/" target="_blank"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/css3/css3-original-wordmark.svg" alt="css3" width="40" height="40"/> </a>  <a href="https://expressjs.com" target="_blank"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/express/express-original-wordmark.svg" alt="express" width="40" height="40"/> </a> <a href="https://git-scm.com/" target="_blank"> <img src="https://www.vectorlogo.zone/logos/git-scm/git-scm-icon.svg" alt="git" width="40" height="40"/> </a> <a href="https://heroku.com" target="_blank"> <img src="https://www.vectorlogo.zone/logos/heroku/heroku-icon.svg" alt="heroku" width="40" height="40"/> </a> <a href="https://www.w3.org/html/" target="_blank"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/html5/html5-original-wordmark.svg" alt="html5" width="40" height="40"/> </a> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/javascript/javascript-original.svg" alt="javascript" width="40" height="40"/> </a> <a href="https://materializecss.com/" target="_blank"> <img src="https://raw.githubusercontent.com/prplx/svg-logos/5585531d45d294869c4eaab4d7cf2e9c167710a9/svg/materialize.svg" alt="materialize" width="40" height="40"/> </a> <a href="https://www.mongodb.com/" target="_blank"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/mongodb/mongodb-original-wordmark.svg" alt="mongodb" width="40" height="40"/> </a> <a href="https://www.mysql.com/" target="_blank"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/mysql/mysql-original-wordmark.svg" alt="mysql" width="40" height="40"/> </a> <a href="https://nodejs.org" target="_blank"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/nodejs/nodejs-original-wordmark.svg" alt="nodejs" width="40" height="40"/> </a> <a href="https://www.photoshop.com/en" target="_blank"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/photoshop/photoshop-line.svg" alt="photoshop" width="40" height="40"/> </a> <a href="https://postman.com" target="_blank"> <img src="https://www.vectorlogo.zone/logos/getpostman/getpostman-icon.svg" alt="postman" width="40" height="40"/> </a> <a href="https://www.python.org" target="_blank"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg" alt="python" width="40" height="40"/> </a> <a href="https://reactjs.org/" target="_blank"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/react/react-original-wordmark.svg" alt="react" width="40" height="40"/> </a> </p>
+---
 
-<p><img align="left" src="https://github-readme-stats.vercel.app/api/top-langs?username=enigma-commits&show_icons=true&locale=en&layout=compact" alt="enigma-commits" /></p>
+### 🛠️ Tech Stack
 
-<p>&nbsp;<img align="center" src="https://github-readme-stats.vercel.app/api?username=enigma-commits&show_icons=true&locale=en" alt="enigma-commits" /></p>
+**Languages & Frameworks**
+<div>
+  <img src="https://img.shields.io/badge/Haskell-5D4F85?style=for-the-badge&logo=haskell&logoColor=white" alt="Haskell" />
+  <img src="https://img.shields.io/badge/C++-00599C?style=for-the-badge&logo=c%2B%2B&logoColor=white" alt="C++" />
+  <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
+  <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" alt="JavaScript" />
+  <img src="https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java" />
+  <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" />
+  <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node.js" />
+  <img src="https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white" alt="Express" />
+</div>
 
-<p><img align="center" src="https://github-readme-streak-stats.herokuapp.com/?user=enigma-commits&" alt="enigma-commits
+**Infrastructure & Tools**
+<div>
+  <img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white" alt="Redis" />
+  <img src="https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
+  <img src="https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazon-aws&logoColor=white" alt="AWS" />
+  <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
+  <img src="https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white" alt="Kubernetes" />
+  <img src="https://img.shields.io/badge/Prometheus-E6522C?style=for-the-badge&logo=prometheus&logoColor=white" alt="Prometheus" />
+  <img src="https://img.shields.io/badge/Grafana-F46800?style=for-the-badge&logo=grafana&logoColor=white" alt="Grafana" />
+</div>
+
+---
+
+### 🚀 Featured Projects
+
+#### [GTFS In-Memory Server (Rust)](https://github.com/nammayatri/gtfs-inmemory-server-rust)
+High-performance GTFS service replacing slow GraphQL with O(1) in-memory queries for real-time transit data.
+
+#### [Driver Pooling System](https://github.com/nammayatri/nammayatri/blob/main/Backend/app/provider-platform/dynamic-offer-driver-app/Main/src/SharedLogic/Allocator/Jobs/SendSearchRequestToDrivers/Handle/Internal/DriverPoolUnified.hs)
+Intelligent driver allocation system using JSON Logic framework, improving efficiency by 40% and reducing pickup times by 30%.
+
+---
+
+### 🏆 Competitive Programming
+
+<div align="center">
+  
+  <img src="https://img.shields.io/badge/Codeforces-Expert-1F8ACB?style=for-the-badge&logo=codeforces&logoColor=white" alt="Codeforces" />
+  <img src="https://img.shields.io/badge/CodeChef-5%20Star-5B4638?style=for-the-badge&logo=codechef&logoColor=white" alt="CodeChef" />
+  <img src="https://img.shields.io/badge/ICPC-Regionalist-FF6F00?style=for-the-badge" alt="ICPC" />
+  <img src="https://img.shields.io/badge/Meta%20Hackercup-Round%202-0081CA?style=for-the-badge&logo=meta&logoColor=white" alt="Meta Hackercup" />
+  
+</div>
+
+- **CodeForces:** Expert (Max Rating: 1622)
+- **CodeChef:** 5-Star (Max Rating: 2147, Global Rank 92 in Starters 35)
+- **ICPC:** Regionalist (Kanpur Rank 56, Amritapuri)
+- **Meta Hackercup:** Qualified Round 2 (Rank 824/12,330)
+
+---
+
+### 📊 GitHub Stats
+
+<div align="center">
+  
+  <img height="180em" src="https://github-readme-stats.vercel.app/api?username=enigma-commits&show_icons=true&theme=tokyonight&hide_border=false&include_all_commits=false"/>
+  <img height="180em" src="https://github-readme-stats.vercel.app/api/top-langs/?username=enigma-commits&layout=compact&langs_count=8&theme=tokyonight&hide_border=false"/>
+  
+</div>
+
+<div align="center">
+  
+  <img src="https://github-readme-stats-fast.vercel.app/api/streak?username=enigma-commits&theme=tokyonight" alt="GitHub Streak" />
+  
+</div>
+
+---
+
+### 💼 Recent Contributions
+
+- 🚇 **Delhi-NCR Open Mobility Ecosystem** - Core contributor to multimodal transport integration
+- ⚡ **High-Performance Systems** - Contributed in Redis-based KV framework handling millions of daily requests
+- 🔄 **Event-Driven Architecture** - Developed fault-tolerant drainer service processing 350K+ ops/hour
+- 🎯 **Context-Aware Config System** - In-memory management enabling UI-based changes and A/B testing
+
+---
+
+### 📫 Connect With Me
+
+<div align="center">
+  
+  <a href="https://www.linkedin.com/in/akhilesh-singh-bhadauriya-57750b198/" target="_blank">
+    <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn" />
+  </a>
+  <a href="https://github.com/enigma-commits" target="_blank">
+    <img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white" alt="GitHub" />
+  </a>
+  <a href="mailto:akhileshsingh2314@gmail.com" target="_blank">
+    <img src="https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="Email" />
+  </a>
+  <a href="https://codeforces.com/profile/absolute_looser" target="_blank">
+    <img src="https://img.shields.io/badge/Codeforces-1F8ACB?style=for-the-badge&logo=codeforces&logoColor=white" alt="Codeforces" />
+  </a>
+  
+</div>
+
+---
+
+<div align="center">
+  
+  <img src="https://komarev.com/ghpvc/?username=enigma-commits&color=blueviolet&style=for-the-badge" alt="Profile Views" />
+  
+</div>
