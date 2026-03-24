@@ -141,6 +141,7 @@ const COMMANDS = {
     '  <span class="accent">achievements</span>    <span class="dim">→</span>  <span class="output">Competitive programming stats</span>',
     '  <span class="accent">contributions</span>   <span class="dim">→</span>  <span class="output">Recent open-source work</span>',
     '  <span class="accent">contact</span>         <span class="dim">→</span>  <span class="output">How to reach me</span>',
+    '  <span class="accent">hi / hello</span>      <span class="dim">→</span>  <span class="output">Say hello!</span>',
     '  <span class="accent">clear</span>           <span class="dim">→</span>  <span class="output">Clear the terminal</span>',
     '  <span class="accent">help</span>            <span class="dim">→</span>  <span class="output">Show this message</span>',
     '<span class="dim">  ─────────────────────────────────────────</span>',
@@ -261,6 +262,27 @@ const COMMANDS = {
   ],
 };
 
+const GREETINGS = ['hi', 'hello', 'hey', 'hola', 'sup', 'yo', 'greetings', 'howdy', 'namaste'];
+
+function greetingResponse() {
+  const hour = new Date().getHours();
+  const timeGreeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+  return [
+    '',
+    '  <span class="success bold">' + timeGreeting + '! Nice to meet you! 👋</span>',
+    '',
+    '  <span class="output">I\'m <span class="accent bold">Akhilesh Singh Bhadauriya</span>, a Software Development</span>',
+    '  <span class="output">Engineer at <span class="accent">Nammayatri</span>, building high-performance</span>',
+    '  <span class="output">distributed systems that move millions of people daily.</span>',
+    '',
+    '  <span class="dim">When I\'m not shipping code, I\'m competing on</span>',
+    '  <span class="dim">CodeForces (<span class="success">Expert</span>) & CodeChef (<span class="success">5-Star</span>).</span>',
+    '',
+    '  <span class="output">Feel free to explore — type <span class="accent">help</span> to see what I can do!</span>',
+    '',
+  ];
+}
+
 // Boot sequence
 const BOOT_LINES = [
   '<span class="dim">Last login: ' + new Date().toDateString() + ' on ttys001</span>',
@@ -320,6 +342,9 @@ function createInputLine() {
         // do nothing, just new prompt
       } else if (cmd === 'clear') {
         terminal.innerHTML = '';
+      } else if (GREETINGS.includes(cmd)) {
+        commandHistory.push(cmd);
+        addLines(greetingResponse());
       } else if (COMMANDS[cmd]) {
         if (cmd !== '') commandHistory.push(cmd);
         addLines(COMMANDS[cmd]());
