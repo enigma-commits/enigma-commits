@@ -4,13 +4,28 @@
 
 <div align="center">
 
-### 🖥️ Try My Interactive Terminal
+### 🖥️ Interactive Terminal Portfolio
+
+```
+╔═══════════════════════════════════════════════════╗
+║                                                   ║
+║   $ whoami                                        ║
+║   > Akhilesh Singh Bhadauriya                     ║
+║   > SDE @ Nammayatri | Systems Engineer           ║
+║                                                   ║
+║   $ help                                          ║
+║   > whoami | skills | projects | achievements     ║
+║   > experience | contributions | contact          ║
+║   > Try: sudo, matrix, hack (easter eggs!)        ║
+║                                                   ║
+╚═══════════════════════════════════════════════════╝
+```
 
 <a href="https://enigma-commits.github.io/enigma-commits/" target="_blank">
-  <img src="https://img.shields.io/badge/Launch_Terminal-%3E__type_help-00D9FF?style=for-the-badge&logo=windowsterminal&logoColor=white" alt="Launch Terminal" />
+  <img src="https://img.shields.io/badge/🚀_LAUNCH_TERMINAL-00D9FF?style=for-the-badge&logoColor=white&labelColor=1a1b26" alt="Launch Terminal" />
 </a>
 
-<sub>Type <code>help</code>, <code>whoami</code>, <code>skills</code>, <code>projects</code>, <code>achievements</code> and more!</sub>
+<sub>Fully interactive — type real commands, get real responses!</sub>
 
 </div>
 
@@ -26,11 +41,20 @@ I'm a **Software Development Engineer** at **Nammayatri**, passionate about buil
 
 ---
 
+### 🏅 GitHub Trophies
+
+<div align="center">
+  <img src="https://github-profile-trophy.vercel.app/?username=enigma-commits&theme=tokyonight&no-frame=true&margin-w=10&margin-h=10&row=1" alt="GitHub Trophies" />
+</div>
+
+---
+
 ### 🛠️ Tech Stack
 
 **Languages & Frameworks**
 <div>
   <img src="https://img.shields.io/badge/Haskell-5D4F85?style=for-the-badge&logo=haskell&logoColor=white" alt="Haskell" />
+  <img src="https://img.shields.io/badge/Rust-000000?style=for-the-badge&logo=rust&logoColor=white" alt="Rust" />
   <img src="https://img.shields.io/badge/C++-00599C?style=for-the-badge&logo=c%2B%2B&logoColor=white" alt="C++" />
   <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
   <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" alt="JavaScript" />
@@ -43,6 +67,7 @@ I'm a **Software Development Engineer** at **Nammayatri**, passionate about buil
 **Infrastructure & Tools**
 <div>
   <img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white" alt="Redis" />
+  <img src="https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
   <img src="https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
   <img src="https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazon-aws&logoColor=white" alt="AWS" />
   <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
@@ -56,61 +81,69 @@ I'm a **Software Development Engineer** at **Nammayatri**, passionate about buil
 ### 🚀 Featured Projects
 
 #### [GTFS In-Memory Server (Rust)](https://github.com/nammayatri/gtfs-inmemory-server-rust)
-High-performance GTFS service replacing slow GraphQL with O(1) in-memory queries for real-time transit data.
+High-performance GTFS service replacing slow GraphQL with **O(1) in-memory queries** for real-time transit data.
 
 #### [Driver Pooling System](https://github.com/nammayatri/nammayatri/blob/main/Backend/app/provider-platform/dynamic-offer-driver-app/Main/src/SharedLogic/Allocator/Jobs/SendSearchRequestToDrivers/Handle/Internal/DriverPoolUnified.hs)
-Intelligent driver allocation system using JSON Logic framework, improving efficiency by 40% and reducing pickup times by 30%.
+Intelligent driver allocation system using JSON Logic framework — **40% efficiency improvement**, **30% faster pickup times**.
 
 ---
 
 ### 🏆 Competitive Programming
 
 <div align="center">
-  
+
   <img src="https://img.shields.io/badge/Codeforces-Expert-1F8ACB?style=for-the-badge&logo=codeforces&logoColor=white" alt="Codeforces" />
   <img src="https://img.shields.io/badge/CodeChef-5%20Star-5B4638?style=for-the-badge&logo=codechef&logoColor=white" alt="CodeChef" />
   <img src="https://img.shields.io/badge/ICPC-Regionalist-FF6F00?style=for-the-badge" alt="ICPC" />
   <img src="https://img.shields.io/badge/Meta%20Hackercup-Round%202-0081CA?style=for-the-badge&logo=meta&logoColor=white" alt="Meta Hackercup" />
-  
+
 </div>
 
-- **CodeForces:** Expert (Max Rating: 1622)
-- **CodeChef:** 5-Star (Max Rating: 2147, Global Rank 92 in Starters 35)
-- **ICPC:** Regionalist (Kanpur Rank 56, Amritapuri)
-- **Meta Hackercup:** Qualified Round 2 (Rank 824/12,330)
+| Platform | Rating / Rank |
+|----------|--------------|
+| **CodeForces** | Expert (Max Rating: 1622) |
+| **CodeChef** | 5-Star (Max Rating: 2147, Global Rank 92 in Starters 35) |
+| **ICPC** | Regionalist (Kanpur Rank 56, Amritapuri) |
+| **Meta Hackercup** | Qualified Round 2 (Rank 824/12,330) |
 
 ---
 
 ### 📊 GitHub Stats
 
 <div align="center">
-  
-  <img height="180em" src="https://github-readme-stats.vercel.app/api?username=enigma-commits&show_icons=true&theme=tokyonight&hide_border=false&include_all_commits=false"/>
-  <img height="180em" src="https://github-readme-stats.vercel.app/api/top-langs/?username=enigma-commits&layout=compact&langs_count=8&theme=tokyonight&hide_border=false"/>
-  
+
+  <img height="180em" src="https://github-readme-stats.vercel.app/api?username=enigma-commits&show_icons=true&theme=tokyonight&hide_border=true&include_all_commits=false"/>
+  <img height="180em" src="https://github-readme-stats.vercel.app/api/top-langs/?username=enigma-commits&layout=compact&langs_count=8&theme=tokyonight&hide_border=true"/>
+
 </div>
 
 <div align="center">
-  
-  <img src="https://github-readme-stats-fast.vercel.app/api/streak?username=enigma-commits&theme=tokyonight" alt="GitHub Streak" />
-  
+  <img src="https://github-readme-stats-fast.vercel.app/api/streak?username=enigma-commits&theme=tokyonight&hide_border=true" alt="GitHub Streak" />
+</div>
+
+---
+
+### 📈 Contribution Activity
+
+<div align="center">
+  <img src="https://github-readme-activity-graph.vercel.app/graph?username=enigma-commits&theme=tokyo-night&bg_color=0d1117&color=00d9ff&line=7aa2f7&point=00d9ff&area=true&hide_border=true" alt="GitHub Activity Graph" />
 </div>
 
 ---
 
 ### 💼 Recent Contributions
 
-- 🚇 **Delhi-NCR Open Mobility Ecosystem** - Core contributor to multimodal transport integration
-- ⚡ **High-Performance Systems** - Contributed in Redis-based KV framework handling millions of daily requests
-- 🔄 **Event-Driven Architecture** - Developed fault-tolerant drainer service processing 350K+ ops/hour
-- 🎯 **Context-Aware Config System** - In-memory management enabling UI-based changes and A/B testing
+- 🚇 **Delhi-NCR Open Mobility Ecosystem** — Core contributor to multimodal transport integration
+- ⚡ **High-Performance Systems** — Contributed in Redis-based KV framework handling millions of daily requests
+- 🔄 **Event-Driven Architecture** — Developed fault-tolerant drainer service processing 350K+ ops/hour
+- 🎯 **Context-Aware Config System** — In-memory management enabling UI-based changes and A/B testing
 
 ---
 
 ### 📫 Connect With Me
 
 <div align="center">
-  
+
   <a href="https://www.linkedin.com/in/akhilesh-singh-bhadauriya-57750b198/" target="_blank">
     <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn" />
   </a>
@@ -123,13 +156,13 @@ Intelligent driver allocation system using JSON Logic framework, improving effic
   <a href="https://codeforces.com/profile/absolute_looser" target="_blank">
     <img src="https://img.shields.io/badge/Codeforces-1F8ACB?style=for-the-badge&logo=codeforces&logoColor=white" alt="Codeforces" />
   </a>
-  
+
 </div>
 
 ---
 
 <div align="center">
-  
+
   <img src="https://komarev.com/ghpvc/?username=enigma-commits&color=blueviolet&style=for-the-badge" alt="Profile Views" />
-  
+
 </div>

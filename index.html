@@ -3,7 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Akhilesh — Terminal</title>
+  <title>Akhilesh — Interactive Terminal</title>
+  <meta name="description" content="Interactive terminal portfolio of Akhilesh Singh Bhadauriya — SDE at Nammayatri. Type commands to explore!" />
+  <meta property="og:title" content="Akhilesh's Interactive Terminal" />
+  <meta property="og:description" content="Explore my portfolio through an interactive macOS-style terminal. Type 'help' to get started!" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://enigma-commits.github.io/enigma-commits/" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Akhilesh's Interactive Terminal" />
+  <meta name="twitter:description" content="Explore my portfolio through an interactive terminal." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💻</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet" />
   <style>
@@ -22,16 +31,21 @@
     .terminal-window {
       width: 100%;
       max-width: 780px;
-      background: #1a1b26;
+      background: linear-gradient(135deg, #1a1b26 0%, #16161e 100%);
       border-radius: 12px;
       box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6), 0 0 60px rgba(0, 217, 255, 0.08);
       overflow: hidden;
       border: 1px solid #2a2b3d;
+      transition: box-shadow 0.4s ease, transform 0.4s ease;
+    }
+    .terminal-window:hover {
+      box-shadow: 0 30px 90px rgba(0, 0, 0, 0.7), 0 0 80px rgba(0, 217, 255, 0.15);
+      transform: translateY(-2px);
     }
 
     /* macOS title bar */
     .title-bar {
-      background: #16161e;
+      background: linear-gradient(to right, #16161e, #1a1b26);
       padding: 12px 16px;
       display: flex;
       align-items: center;
@@ -39,16 +53,17 @@
       border-bottom: 1px solid #2a2b3d;
       user-select: none;
     }
-    .title-bar .dot { width: 12px; height: 12px; border-radius: 50%; }
-    .dot.red   { background: #ff5f57; }
-    .dot.yellow { background: #febc2e; }
-    .dot.green  { background: #28c840; }
+    .title-bar .dot {
+      width: 12px; height: 12px; border-radius: 50%;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .title-bar .dot:hover { transform: scale(1.3); }
+    .dot.red    { background: #ff5f57; box-shadow: 0 0 6px rgba(255,95,87,0.4); }
+    .dot.yellow { background: #febc2e; box-shadow: 0 0 6px rgba(254,188,46,0.4); }
+    .dot.green  { background: #28c840; box-shadow: 0 0 6px rgba(40,200,64,0.4); }
     .title-bar .title {
-      flex: 1;
-      text-align: center;
-      color: #565f89;
-      font-size: 13px;
-      margin-right: 52px;
+      flex: 1; text-align: center; color: #565f89;
+      font-size: 13px; margin-right: 52px;
     }
 
     /* Terminal body */
@@ -60,57 +75,72 @@
     }
     .terminal-body::-webkit-scrollbar { width: 6px; }
     .terminal-body::-webkit-scrollbar-track { background: transparent; }
-    .terminal-body::-webkit-scrollbar-thumb { background: #2a2b3d; border-radius: 3px; }
+    .terminal-body::-webkit-scrollbar-thumb {
+      background: linear-gradient(to bottom, #00d9ff33, #7aa2f733);
+      border-radius: 3px;
+    }
+    .terminal-body::-webkit-scrollbar-thumb:hover { background: #00d9ff55; }
 
     /* Output lines */
-    .line { margin-bottom: 2px; line-height: 1.6; font-size: 14px; }
+    .line {
+      margin-bottom: 2px; line-height: 1.6; font-size: 14px;
+      opacity: 0; animation: fadeInLine 0.25s ease forwards;
+    }
+    .line.no-anim { opacity: 1; animation: none; }
+    @keyframes fadeInLine {
+      from { opacity: 0; transform: translateY(4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
     .line .prompt { color: #7aa2f7; }
     .line .path   { color: #9ece6a; }
     .line .cmd    { color: #c0caf5; }
     .line .output { color: #a9b1d6; }
-    .line .accent { color: #00d9ff; }
+    .line .accent { color: #00d9ff; text-shadow: 0 0 10px rgba(0,217,255,0.15); }
     .line .highlight { color: #f7768e; }
     .line .warning { color: #e0af68; }
     .line .success { color: #9ece6a; }
-    .line .dim { color: #565f89; }
+    .line .dim { color: #6a7094; }
     .line .bold { font-weight: 600; }
-    .line .header {
-      color: #00d9ff;
-      font-weight: 600;
-    }
+    .line .header { color: #00d9ff; font-weight: 600; text-shadow: 0 0 15px rgba(0,217,255,0.2); }
 
     /* Input line */
     .input-line {
-      display: flex;
-      align-items: center;
-      font-size: 14px;
-      margin-top: 4px;
+      display: flex; align-items: center; font-size: 14px; margin-top: 4px;
+      padding: 2px 0; border-radius: 4px;
+      transition: background 0.2s ease;
+    }
+    .input-line:focus-within {
+      background: rgba(0, 217, 255, 0.03);
     }
     .input-line .prompt { color: #7aa2f7; white-space: pre; }
-    .input-line .path { color: #9ece6a; white-space: pre; }
+    .input-line .path   { color: #9ece6a; white-space: pre; }
     .input-line input {
-      flex: 1;
-      background: none;
-      border: none;
-      outline: none;
-      color: #c0caf5;
-      font-family: 'Fira Code', monospace;
-      font-size: 14px;
-      caret-color: #00d9ff;
+      flex: 1; background: none; border: none; outline: none;
+      color: #c0caf5; font-family: 'Fira Code', monospace;
+      font-size: 14px; caret-color: #00d9ff;
     }
 
-    /* Blinking cursor effect on focus */
-    .input-line input:focus { outline: none; }
-
-    /* Subtle glow on the window */
-    .terminal-window:hover {
-      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6), 0 0 80px rgba(0, 217, 255, 0.12);
+    /* Links */
+    .terminal-body a {
+      color: #7aa2f7; text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: all 0.2s ease;
+    }
+    .terminal-body a:hover {
+      color: #00d9ff; border-bottom-color: #00d9ff;
+      text-shadow: 0 0 8px rgba(0,217,255,0.3);
     }
 
-    /* Mobile tweaks */
+    /* Mobile */
     @media (max-width: 600px) {
-      .terminal-body { height: 70vh; padding: 14px; }
+      .terminal-body { height: 75vh; padding: 14px; }
       .line, .input-line, .input-line input { font-size: 12px; }
+      .input-line input { font-size: 16px; } /* prevent iOS zoom */
+    }
+    @media (max-width: 400px) {
+      .line, .input-line { font-size: 11px; }
+      .terminal-window { border-radius: 8px; }
     }
   </style>
 </head>
@@ -122,29 +152,30 @@
       <span class="dot green"></span>
       <span class="title">akhilesh@macbook — zsh</span>
     </div>
-    <div class="terminal-body" id="terminal">
-      <!-- Boot sequence and input are rendered by JS -->
-    </div>
+    <div class="terminal-body" id="terminal" role="log" aria-label="Interactive terminal"></div>
   </div>
 
 <script>
 const terminal = document.getElementById('terminal');
+const commandHistory = [];
+let isAnimating = false;
 
 const COMMANDS = {
   help: () => [
     '',
     '<span class="header">  Available Commands</span>',
-    '<span class="dim">  ─────────────────────────────────────────</span>',
+    '<span class="dim">  ─────────────────────────────────────────────</span>',
     '  <span class="accent">whoami</span>          <span class="dim">→</span>  <span class="output">Who am I?</span>',
-    '  <span class="accent">skills</span>          <span class="dim">→</span>  <span class="output">Tech stack & tools I work with</span>',
+    '  <span class="accent">experience</span>      <span class="dim">→</span>  <span class="output">My career journey</span>',
+    '  <span class="accent">skills</span>          <span class="dim">→</span>  <span class="output">Tech stack & tools</span>',
     '  <span class="accent">projects</span>        <span class="dim">→</span>  <span class="output">Featured projects</span>',
-    '  <span class="accent">achievements</span>    <span class="dim">→</span>  <span class="output">Competitive programming stats</span>',
+    '  <span class="accent">achievements</span>    <span class="dim">→</span>  <span class="output">Competitive programming</span>',
     '  <span class="accent">contributions</span>   <span class="dim">→</span>  <span class="output">Recent open-source work</span>',
     '  <span class="accent">contact</span>         <span class="dim">→</span>  <span class="output">How to reach me</span>',
     '  <span class="accent">hi / hello</span>      <span class="dim">→</span>  <span class="output">Say hello!</span>',
     '  <span class="accent">clear</span>           <span class="dim">→</span>  <span class="output">Clear the terminal</span>',
-    '  <span class="accent">help</span>            <span class="dim">→</span>  <span class="output">Show this message</span>',
-    '<span class="dim">  ─────────────────────────────────────────</span>',
+    '<span class="dim">  ─────────────────────────────────────────────</span>',
+    '  <span class="dim">Tip: Try</span> <span class="accent">sudo</span><span class="dim">,</span> <span class="accent">matrix</span><span class="dim">, or</span> <span class="accent">hack</span> <span class="dim">for surprises ;)</span>',
     '',
   ],
 
@@ -164,6 +195,29 @@ const COMMANDS = {
     '  <span class="success">▸</span> Solving problems with elegant code',
     '',
     '  <span class="dim">motto:</span> <span class="warning">"Ship fast. Scale faster."</span>',
+    '',
+  ],
+
+  experience: () => [
+    '',
+    '<span class="header">  Career Timeline</span>',
+    '<span class="dim">  ──────────────────────────────────────────────────</span>',
+    '',
+    '  <span class="accent bold">2023 — Present</span>  <span class="dim">│</span>  <span class="output bold">SDE @ Nammayatri</span>',
+    '  <span class="dim">                 │</span>  <span class="output">Building India\'s largest open-mobility</span>',
+    '  <span class="dim">                 │</span>  <span class="output">platform. Distributed systems, Haskell,</span>',
+    '  <span class="dim">                 │</span>  <span class="output">Rust, real-time transit at massive scale.</span>',
+    '  <span class="dim">                 │</span>',
+    '  <span class="dim">                 │</span>  <span class="success">▸</span> GTFS in-memory server <span class="dim">(Rust)</span>',
+    '  <span class="dim">                 │</span>  <span class="success">▸</span> Driver pooling system <span class="dim">(40% efficiency gain)</span>',
+    '  <span class="dim">                 │</span>  <span class="success">▸</span> Event drainer <span class="dim">(350K+ ops/hour)</span>',
+    '  <span class="dim">                 │</span>  <span class="success">▸</span> Delhi-NCR multimodal integration',
+    '',
+    '  <span class="warning bold">Competitive Era</span>  <span class="dim">│</span>  <span class="output bold">CP & Problem Solving</span>',
+    '  <span class="dim">                 │</span>  <span class="output">CodeForces Expert, CodeChef 5-Star,</span>',
+    '  <span class="dim">                 │</span>  <span class="output">ICPC Regionalist, Meta Hackercup R2</span>',
+    '',
+    '  <span class="success">✓ Timeline loaded.</span>',
     '',
   ],
 
@@ -196,7 +250,7 @@ const COMMANDS = {
     '  <span class="header">│</span>  <span class="output">GraphQL with O(1) in-memory queries for</span>           <span class="header">│</span>',
     '  <span class="header">│</span>  <span class="output">real-time transit data.</span>                             <span class="header">│</span>',
     '  <span class="header">│</span>                                                      <span class="header">│</span>',
-    '  <span class="header">│</span>  <span class="dim">🔗 github.com/nammayatri/gtfs-inmemory-server-rust</span> <span class="header">│</span>',
+    '  <span class="header">│</span>  <span class="dim">🔗</span> <a href="https://github.com/nammayatri/gtfs-inmemory-server-rust" target="_blank">github.com/nammayatri/gtfs-inmemory-server-rust</a> <span class="header">│</span>',
     '  <span class="header">└──────────────────────────────────────────────────────┘</span>',
     '',
     '  <span class="header">┌──────────────────────────────────────────────────────┐</span>',
@@ -206,7 +260,7 @@ const COMMANDS = {
     '  <span class="header">│</span>  <span class="output">Improved efficiency by 40%, reduced pickup</span>       <span class="header">│</span>',
     '  <span class="header">│</span>  <span class="output">times by 30%.</span>                                      <span class="header">│</span>',
     '  <span class="header">│</span>                                                      <span class="header">│</span>',
-    '  <span class="header">│</span>  <span class="dim">🔗 github.com/nammayatri/nammayatri</span>               <span class="header">│</span>',
+    '  <span class="header">│</span>  <span class="dim">🔗</span> <a href="https://github.com/nammayatri/nammayatri" target="_blank">github.com/nammayatri/nammayatri</a>               <span class="header">│</span>',
     '  <span class="header">└──────────────────────────────────────────────────────┘</span>',
     '',
   ],
@@ -254,10 +308,67 @@ const COMMANDS = {
     '  <span class="header">│</span>  <span class="accent bold">Let\'s connect!</span>                                <span class="header">│</span>',
     '  <span class="header">└──────────────────────────────────────────────┘</span>',
     '',
-    '  <span class="accent">▸</span> LinkedIn    <span class="dim">→</span>  <a href="https://www.linkedin.com/in/akhilesh-singh-bhadauriya-57750b198/" target="_blank" style="color:#7aa2f7;text-decoration:none;">linkedin.com/in/akhilesh-singh-bhadauriya</a>',
-    '  <span class="accent">▸</span> GitHub      <span class="dim">→</span>  <a href="https://github.com/enigma-commits" target="_blank" style="color:#7aa2f7;text-decoration:none;">github.com/enigma-commits</a>',
-    '  <span class="accent">▸</span> Email       <span class="dim">→</span>  <a href="mailto:akhileshsingh2314@gmail.com" style="color:#7aa2f7;text-decoration:none;">akhileshsingh2314@gmail.com</a>',
-    '  <span class="accent">▸</span> Codeforces  <span class="dim">→</span>  <a href="https://codeforces.com/profile/absolute_looser" target="_blank" style="color:#7aa2f7;text-decoration:none;">codeforces.com/profile/absolute_looser</a>',
+    '  <span class="accent">▸</span> LinkedIn    <span class="dim">→</span>  <a href="https://www.linkedin.com/in/akhilesh-singh-bhadauriya-57750b198/" target="_blank">linkedin.com/in/akhilesh-singh-bhadauriya</a>',
+    '  <span class="accent">▸</span> GitHub      <span class="dim">→</span>  <a href="https://github.com/enigma-commits" target="_blank">github.com/enigma-commits</a>',
+    '  <span class="accent">▸</span> Email       <span class="dim">→</span>  <a href="mailto:akhileshsingh2314@gmail.com">akhileshsingh2314@gmail.com</a>',
+    '  <span class="accent">▸</span> Codeforces  <span class="dim">→</span>  <a href="https://codeforces.com/profile/absolute_looser" target="_blank">codeforces.com/profile/absolute_looser</a>',
+    '',
+  ],
+
+  // Easter eggs
+  sudo: () => [
+    '',
+    '<span class="warning">  [sudo] password for akhilesh: ********</span>',
+    '<span class="highlight">  Sorry, user akhilesh is not in the sudoers file.</span>',
+    '<span class="highlight">  This incident will be reported.</span>',
+    '',
+    '<span class="dim">  Just kidding. No root access here!</span>',
+    '',
+  ],
+
+  matrix: () => {
+    const chars = 'アイウエオカキクケコサシスセソタチツテト01';
+    const lines = ['', '<span class="dim">  Entering the Matrix...</span>', ''];
+    for (let i = 0; i < 8; i++) {
+      let row = '  <span class="success">';
+      for (let j = 0; j < 48; j++) row += chars[Math.floor(Math.random() * chars.length)];
+      row += '</span>';
+      lines.push(row);
+    }
+    lines.push('', '<span class="accent bold">  Wake up, Neo... The Matrix has you.</span>', '');
+    return lines;
+  },
+
+  hack: () => [
+    '',
+    '<span class="warning">  Initiating breach sequence...</span>',
+    '<span class="dim">  [▓▓▓▓▓▓▓▓▓▓░░░░░░░░░░░░░░░░] 38%</span>',
+    '<span class="dim">  [▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░░░] 67%</span>',
+    '<span class="dim">  [▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓] 100%</span>',
+    '',
+    '<span class="highlight">  ACCESS DENIED.</span>',
+    '<span class="dim">  Nice try! This terminal is for exploring, not hacking.</span>',
+    '',
+  ],
+
+  secret: () => [
+    '',
+    '<span class="accent bold">  You found a secret!</span>',
+    '',
+    '<span class="output">  The real treasure was the code we shipped along the way.</span>',
+    '<span class="dim">  ...or was it? Type more commands to find out.</span>',
+    '',
+  ],
+
+  moo: () => [
+    '',
+    '<span class="accent">         ^__^</span>',
+    '<span class="accent">         (oo)\\_______</span>',
+    '<span class="accent">         (__)\\       )\\/\\</span>',
+    '<span class="accent">             ||----w |</span>',
+    '<span class="accent">             ||     ||</span>',
+    '',
+    '<span class="warning">  Have you mooed today?</span>',
     '',
   ],
 };
@@ -266,10 +377,10 @@ const GREETINGS = ['hi', 'hello', 'hey', 'hola', 'sup', 'yo', 'greetings', 'howd
 
 function greetingResponse() {
   const hour = new Date().getHours();
-  const timeGreeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+  const g = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
   return [
     '',
-    '  <span class="success bold">' + timeGreeting + '! Nice to meet you! 👋</span>',
+    '  <span class="success bold">' + g + '! Nice to meet you!</span>',
     '',
     '  <span class="output">I\'m <span class="accent bold">Akhilesh Singh Bhadauriya</span>, a Software Development</span>',
     '  <span class="output">Engineer at <span class="accent">Nammayatri</span>, building high-performance</span>',
@@ -283,9 +394,16 @@ function greetingResponse() {
   ];
 }
 
-// Boot sequence
+// ASCII art boot
 const BOOT_LINES = [
   '<span class="dim">Last login: ' + new Date().toDateString() + ' on ttys001</span>',
+  '',
+  '<span class="accent">   █████╗ ██╗  ██╗██╗██╗     ███████╗███████╗██╗  ██╗</span>',
+  '<span class="accent">  ██╔══██╗██║ ██╔╝██║██║     ██╔════╝██╔════╝██║  ██║</span>',
+  '<span class="accent">  ███████║█████╔╝ ██║██║     █████╗  ███████╗███████║</span>',
+  '<span class="accent">  ██╔══██║██╔═██╗ ██║██║     ██╔══╝  ╚════██║██╔══██║</span>',
+  '<span class="accent">  ██║  ██║██║  ██╗██║███████╗███████╗███████║██║  ██║</span>',
+  '<span class="accent">  ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚══════╝╚══════╝╚══════╝╚═╝  ╚═╝</span>',
   '',
   '<span class="success bold">  Welcome to Akhilesh\'s Terminal!</span>',
   '  <span class="dim">Type</span> <span class="accent">help</span> <span class="dim">to see available commands.</span>',
@@ -296,18 +414,34 @@ function promptHTML() {
   return '<span class="prompt">akhilesh</span><span class="dim">@</span><span class="path">macbook</span> <span class="dim">~ %</span> ';
 }
 
-function addLines(lines) {
-  lines.forEach(line => {
-    const div = document.createElement('div');
-    div.className = 'line';
-    div.innerHTML = line || '&nbsp;';
-    terminal.appendChild(div);
-  });
+function addLines(lines, animate) {
+  if (animate) {
+    isAnimating = true;
+    let i = 0;
+    function next() {
+      if (i >= lines.length) { isAnimating = false; return; }
+      const div = document.createElement('div');
+      div.className = 'line';
+      div.innerHTML = lines[i] || '&nbsp;';
+      terminal.appendChild(div);
+      scrollToBottom();
+      i++;
+      setTimeout(next, 30);
+    }
+    next();
+  } else {
+    lines.forEach(line => {
+      const div = document.createElement('div');
+      div.className = 'line';
+      div.innerHTML = line || '&nbsp;';
+      terminal.appendChild(div);
+    });
+  }
 }
 
 function addCommandLine(cmd) {
   const div = document.createElement('div');
-  div.className = 'line';
+  div.className = 'line no-anim';
   div.innerHTML = promptHTML() + '<span class="cmd">' + escapeHTML(cmd) + '</span>';
   terminal.appendChild(div);
 }
@@ -328,38 +462,41 @@ function createInputLine() {
   input.spellcheck = false;
   input.autocomplete = 'off';
   input.autofocus = true;
+  input.setAttribute('aria-label', 'Terminal input');
 
-  // Command history
   let historyIndex = -1;
 
   input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
-      const cmd = input.value.trim().toLowerCase();
+      const fullInput = input.value.trim();
+      const cmd = fullInput.split(/\s+/)[0].toLowerCase();
       wrapper.remove();
-      addCommandLine(input.value.trim() || '');
+      addCommandLine(fullInput || '');
 
       if (cmd === '') {
-        // do nothing, just new prompt
+        // empty
       } else if (cmd === 'clear') {
         terminal.innerHTML = '';
       } else if (GREETINGS.includes(cmd)) {
-        commandHistory.push(cmd);
-        addLines(greetingResponse());
+        commandHistory.push(fullInput);
+        addLines(greetingResponse(), true);
       } else if (COMMANDS[cmd]) {
-        if (cmd !== '') commandHistory.push(cmd);
-        addLines(COMMANDS[cmd]());
+        commandHistory.push(fullInput);
+        const result = COMMANDS[cmd]();
+        addLines(result, true);
       } else {
-        if (cmd !== '') commandHistory.push(cmd);
+        commandHistory.push(fullInput);
         addLines([
           '<span class="highlight">  zsh: command not found: ' + escapeHTML(cmd) + '</span>',
           '  <span class="dim">Type</span> <span class="accent">help</span> <span class="dim">to see available commands.</span>',
           '',
-        ]);
+        ], false);
       }
 
       historyIndex = -1;
-      createInputLine();
-      scrollToBottom();
+      // Delay input creation if animating
+      const wait = isAnimating ? 50 : 0;
+      setTimeout(() => { createInputLine(); scrollToBottom(); }, wait);
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
       if (commandHistory.length > 0) {
@@ -375,9 +512,18 @@ function createInputLine() {
       }
     } else if (e.key === 'Tab') {
       e.preventDefault();
-      const partial = input.value.trim().toLowerCase();
-      const matches = Object.keys(COMMANDS).concat(['clear']).filter(c => c.startsWith(partial));
-      if (matches.length === 1) input.value = matches[0];
+      const partial = input.value.trim().split(/\s+/)[0].toLowerCase();
+      if (partial) {
+        const all = Object.keys(COMMANDS).concat(['clear']);
+        const matches = all.filter(c => c.startsWith(partial));
+        if (matches.length === 1) input.value = matches[0];
+      }
+    } else if (e.key === 'c' && e.ctrlKey) {
+      e.preventDefault();
+      wrapper.remove();
+      addCommandLine(input.value + '^C');
+      createInputLine();
+      scrollToBottom();
     } else if (e.key === 'l' && e.ctrlKey) {
       e.preventDefault();
       terminal.innerHTML = '';
@@ -390,21 +536,18 @@ function createInputLine() {
   input.focus();
 }
 
-const commandHistory = [];
-
 function scrollToBottom() {
   terminal.scrollTop = terminal.scrollHeight;
 }
 
-// Click anywhere to focus input
 document.addEventListener('click', () => {
   const input = terminal.querySelector('.input-line input');
   if (input) input.focus();
 });
 
-// Boot
-addLines(BOOT_LINES);
-createInputLine();
+// Boot with animation
+addLines(BOOT_LINES, true);
+setTimeout(createInputLine, BOOT_LINES.length * 30 + 100);
 </script>
 </body>
 </html>
