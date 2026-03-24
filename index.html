@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Akhilesh — Terminal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0d1117;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: 'Fira Code', monospace;
+      padding: 20px;
+    }
+
+    .terminal-window {
+      width: 100%;
+      max-width: 780px;
+      background: #1a1b26;
+      border-radius: 12px;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6), 0 0 60px rgba(0, 217, 255, 0.08);
+      overflow: hidden;
+      border: 1px solid #2a2b3d;
+    }
+
+    /* macOS title bar */
+    .title-bar {
+      background: #16161e;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid #2a2b3d;
+      user-select: none;
+    }
+    .title-bar .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot.red   { background: #ff5f57; }
+    .dot.yellow { background: #febc2e; }
+    .dot.green  { background: #28c840; }
+    .title-bar .title {
+      flex: 1;
+      text-align: center;
+      color: #565f89;
+      font-size: 13px;
+      margin-right: 52px;
+    }
+
+    /* Terminal body */
+    .terminal-body {
+      padding: 20px;
+      height: 520px;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+    }
+    .terminal-body::-webkit-scrollbar { width: 6px; }
+    .terminal-body::-webkit-scrollbar-track { background: transparent; }
+    .terminal-body::-webkit-scrollbar-thumb { background: #2a2b3d; border-radius: 3px; }
+
+    /* Output lines */
+    .line { margin-bottom: 2px; line-height: 1.6; font-size: 14px; }
+    .line .prompt { color: #7aa2f7; }
+    .line .path   { color: #9ece6a; }
+    .line .cmd    { color: #c0caf5; }
+    .line .output { color: #a9b1d6; }
+    .line .accent { color: #00d9ff; }
+    .line .highlight { color: #f7768e; }
+    .line .warning { color: #e0af68; }
+    .line .success { color: #9ece6a; }
+    .line .dim { color: #565f89; }
+    .line .bold { font-weight: 600; }
+    .line .header {
+      color: #00d9ff;
+      font-weight: 600;
+    }
+
+    /* Input line */
+    .input-line {
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      margin-top: 4px;
+    }
+    .input-line .prompt { color: #7aa2f7; white-space: pre; }
+    .input-line .path { color: #9ece6a; white-space: pre; }
+    .input-line input {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      color: #c0caf5;
+      font-family: 'Fira Code', monospace;
+      font-size: 14px;
+      caret-color: #00d9ff;
+    }
+
+    /* Blinking cursor effect on focus */
+    .input-line input:focus { outline: none; }
+
+    /* Subtle glow on the window */
+    .terminal-window:hover {
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6), 0 0 80px rgba(0, 217, 255, 0.12);
+    }
+
+    /* Mobile tweaks */
+    @media (max-width: 600px) {
+      .terminal-body { height: 70vh; padding: 14px; }
+      .line, .input-line, .input-line input { font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="terminal-window">
+    <div class="title-bar">
+      <span class="dot red"></span>
+      <span class="dot yellow"></span>
+      <span class="dot green"></span>
+      <span class="title">akhilesh@macbook — zsh</span>
+    </div>
+    <div class="terminal-body" id="terminal">
+      <!-- Boot sequence and input are rendered by JS -->
+    </div>
+  </div>
+
+<script>
+const terminal = document.getElementById('terminal');
+
+const COMMANDS = {
+  help: () => [
+    '',
+    '<span class="header">  Available Commands</span>',
+    '<span class="dim">  ─────────────────────────────────────────</span>',
+    '  <span class="accent">whoami</span>          <span class="dim">→</span>  <span class="output">Who am I?</span>',
+    '  <span class="accent">skills</span>          <span class="dim">→</span>  <span class="output">Tech stack & tools I work with</span>',
+    '  <span class="accent">projects</span>        <span class="dim">→</span>  <span class="output">Featured projects</span>',
+    '  <span class="accent">achievements</span>    <span class="dim">→</span>  <span class="output">Competitive programming stats</span>',
+    '  <span class="accent">contributions</span>   <span class="dim">→</span>  <span class="output">Recent open-source work</span>',
+    '  <span class="accent">contact</span>         <span class="dim">→</span>  <span class="output">How to reach me</span>',
+    '  <span class="accent">clear</span>           <span class="dim">→</span>  <span class="output">Clear the terminal</span>',
+    '  <span class="accent">help</span>            <span class="dim">→</span>  <span class="output">Show this message</span>',
+    '<span class="dim">  ─────────────────────────────────────────</span>',
+    '',
+  ],
+
+  whoami: () => [
+    '',
+    '<span class="header">  ╔══════════════════════════════════════════════════════════╗</span>',
+    '<span class="header">  ║</span>                                                          <span class="header">║</span>',
+    '<span class="header">  ║</span>   <span class="accent bold">Name</span>       <span class="dim">:</span> <span class="output">Akhilesh Singh Bhadauriya</span>                  <span class="header">║</span>',
+    '<span class="header">  ║</span>   <span class="accent bold">Role</span>       <span class="dim">:</span> <span class="output">SDE @ Nammayatri</span>                           <span class="header">║</span>',
+    '<span class="header">  ║</span>   <span class="accent bold">Location</span>   <span class="dim">:</span> <span class="output">India</span>                                      <span class="header">║</span>',
+    '<span class="header">  ║</span>   <span class="accent bold">Focus</span>      <span class="dim">:</span> <span class="output">Distributed Systems & Performance</span>           <span class="header">║</span>',
+    '<span class="header">  ║</span>                                                          <span class="header">║</span>',
+    '<span class="header">  ╚══════════════════════════════════════════════════════════╝</span>',
+    '',
+    '  <span class="success">▸</span> Building <span class="output">multimodal transport systems</span>',
+    '  <span class="success">▸</span> Scalable infra handling <span class="accent">350K+ ops/hour</span>',
+    '  <span class="success">▸</span> Solving problems with elegant code',
+    '',
+    '  <span class="dim">motto:</span> <span class="warning">"Ship fast. Scale faster."</span>',
+    '',
+  ],
+
+  skills: () => [
+    '',
+    '<span class="header">  Languages & Frameworks</span>',
+    '<span class="dim">  ──────────────────────</span>',
+    '  <span class="accent">▸</span> Haskell      <span class="dim">│</span> <span class="accent">▸</span> C++          <span class="dim">│</span> <span class="accent">▸</span> Python',
+    '  <span class="accent">▸</span> JavaScript   <span class="dim">│</span> <span class="accent">▸</span> Java         <span class="dim">│</span> <span class="accent">▸</span> Rust',
+    '  <span class="accent">▸</span> React        <span class="dim">│</span> <span class="accent">▸</span> Node.js      <span class="dim">│</span> <span class="accent">▸</span> Express.js',
+    '',
+    '<span class="header">  Infrastructure & Tools</span>',
+    '<span class="dim">  ──────────────────────</span>',
+    '  <span class="success">▸</span> Redis        <span class="dim">│</span> <span class="success">▸</span> MongoDB      <span class="dim">│</span> <span class="success">▸</span> PostgreSQL',
+    '  <span class="success">▸</span> AWS          <span class="dim">│</span> <span class="success">▸</span> Docker       <span class="dim">│</span> <span class="success">▸</span> Kubernetes',
+    '  <span class="success">▸</span> Prometheus   <span class="dim">│</span> <span class="success">▸</span> Grafana      <span class="dim">│</span> <span class="success">▸</span> Git',
+    '',
+    '  <span class="success">✓ All packages loaded.</span>',
+    '',
+  ],
+
+  projects: () => [
+    '',
+    '  <span class="dim">Loading repositories...</span>',
+    '',
+    '  <span class="header">┌──────────────────────────────────────────────────────┐</span>',
+    '  <span class="header">│</span>  <span class="accent bold">GTFS In-Memory Server</span> <span class="dim">(Rust)</span>                        <span class="header">│</span>',
+    '  <span class="header">│</span>  <span class="dim">────────────────────────────────────────────────</span>  <span class="header">│</span>',
+    '  <span class="header">│</span>  <span class="output">High-performance GTFS service replacing slow</span>      <span class="header">│</span>',
+    '  <span class="header">│</span>  <span class="output">GraphQL with O(1) in-memory queries for</span>           <span class="header">│</span>',
+    '  <span class="header">│</span>  <span class="output">real-time transit data.</span>                             <span class="header">│</span>',
+    '  <span class="header">│</span>                                                      <span class="header">│</span>',
+    '  <span class="header">│</span>  <span class="dim">🔗 github.com/nammayatri/gtfs-inmemory-server-rust</span> <span class="header">│</span>',
+    '  <span class="header">└──────────────────────────────────────────────────────┘</span>',
+    '',
+    '  <span class="header">┌──────────────────────────────────────────────────────┐</span>',
+    '  <span class="header">│</span>  <span class="accent bold">Driver Pooling System</span>                              <span class="header">│</span>',
+    '  <span class="header">│</span>  <span class="dim">────────────────────────────────────────────────</span>  <span class="header">│</span>',
+    '  <span class="header">│</span>  <span class="output">Intelligent driver allocation using JSON Logic.</span>   <span class="header">│</span>',
+    '  <span class="header">│</span>  <span class="output">Improved efficiency by 40%, reduced pickup</span>       <span class="header">│</span>',
+    '  <span class="header">│</span>  <span class="output">times by 30%.</span>                                      <span class="header">│</span>',
+    '  <span class="header">│</span>                                                      <span class="header">│</span>',
+    '  <span class="header">│</span>  <span class="dim">🔗 github.com/nammayatri/nammayatri</span>               <span class="header">│</span>',
+    '  <span class="header">└──────────────────────────────────────────────────────┘</span>',
+    '',
+  ],
+
+  achievements: () => [
+    '',
+    '  <span class="dim">Fetching competitive programming stats...</span>',
+    '',
+    '  <span class="header">┌───────────────────┬────────────────────────────────────┐</span>',
+    '  <span class="header">│</span>  <span class="accent bold">Platform</span>         <span class="header">│</span>  <span class="accent bold">Rating / Rank</span>                       <span class="header">│</span>',
+    '  <span class="header">├───────────────────┼────────────────────────────────────┤</span>',
+    '  <span class="header">│</span>  <span class="output">CodeForces</span>       <span class="header">│</span>  <span class="success">Expert</span> <span class="dim">(Max: 1622)</span>                 <span class="header">│</span>',
+    '  <span class="header">│</span>  <span class="output">CodeChef</span>         <span class="header">│</span>  <span class="success">5-Star</span> <span class="dim">(Max: 2147, Global #92)</span>    <span class="header">│</span>',
+    '  <span class="header">│</span>  <span class="output">ICPC</span>             <span class="header">│</span>  <span class="success">Regionalist</span> <span class="dim">(Kanpur #56)</span>          <span class="header">│</span>',
+    '  <span class="header">│</span>  <span class="output">Meta Hackercup</span>   <span class="header">│</span>  <span class="success">Round 2</span> <span class="dim">(Rank 824 / 12,330)</span>     <span class="header">│</span>',
+    '  <span class="header">└───────────────────┴────────────────────────────────────┘</span>',
+    '',
+    '  <span class="success">✓ All records loaded.</span>',
+    '',
+  ],
+
+  contributions: () => [
+    '',
+    '  <span class="dim">Fetching contribution log...</span>',
+    '',
+    '  <span class="warning">commit</span>  <span class="dim">a1b2c3d</span>  <span class="accent bold">Delhi-NCR Open Mobility Ecosystem</span>',
+    '  <span class="dim">├──</span> Core contributor to multimodal transport integration',
+    '  <span class="dim">│</span>',
+    '  <span class="warning">commit</span>  <span class="dim">d4e5f6a</span>  <span class="accent bold">High-Performance Systems</span>',
+    '  <span class="dim">├──</span> Redis-based KV framework handling millions of daily requests',
+    '  <span class="dim">│</span>',
+    '  <span class="warning">commit</span>  <span class="dim">b7c8d9e</span>  <span class="accent bold">Event-Driven Architecture</span>',
+    '  <span class="dim">├──</span> Fault-tolerant drainer service processing 350K+ ops/hour',
+    '  <span class="dim">│</span>',
+    '  <span class="warning">commit</span>  <span class="dim">f0a1b2c</span>  <span class="accent bold">Context-Aware Config System</span>',
+    '  <span class="dim">└──</span> In-memory management enabling UI changes & A/B testing',
+    '',
+    '  <span class="success">✓ 4 contributions displayed.</span>',
+    '',
+  ],
+
+  contact: () => [
+    '',
+    '  <span class="header">┌──────────────────────────────────────────────┐</span>',
+    '  <span class="header">│</span>  <span class="accent bold">Let\'s connect!</span>                                <span class="header">│</span>',
+    '  <span class="header">└──────────────────────────────────────────────┘</span>',
+    '',
+    '  <span class="accent">▸</span> LinkedIn    <span class="dim">→</span>  <a href="https://www.linkedin.com/in/akhilesh-singh-bhadauriya-57750b198/" target="_blank" style="color:#7aa2f7;text-decoration:none;">linkedin.com/in/akhilesh-singh-bhadauriya</a>',
+    '  <span class="accent">▸</span> GitHub      <span class="dim">→</span>  <a href="https://github.com/enigma-commits" target="_blank" style="color:#7aa2f7;text-decoration:none;">github.com/enigma-commits</a>',
+    '  <span class="accent">▸</span> Email       <span class="dim">→</span>  <a href="mailto:akhileshsingh2314@gmail.com" style="color:#7aa2f7;text-decoration:none;">akhileshsingh2314@gmail.com</a>',
+    '  <span class="accent">▸</span> Codeforces  <span class="dim">→</span>  <a href="https://codeforces.com/profile/absolute_looser" target="_blank" style="color:#7aa2f7;text-decoration:none;">codeforces.com/profile/absolute_looser</a>',
+    '',
+  ],
+};
+
+// Boot sequence
+const BOOT_LINES = [
+  '<span class="dim">Last login: ' + new Date().toDateString() + ' on ttys001</span>',
+  '',
+  '<span class="success bold">  Welcome to Akhilesh\'s Terminal!</span>',
+  '  <span class="dim">Type</span> <span class="accent">help</span> <span class="dim">to see available commands.</span>',
+  '',
+];
+
+function promptHTML() {
+  return '<span class="prompt">akhilesh</span><span class="dim">@</span><span class="path">macbook</span> <span class="dim">~ %</span> ';
+}
+
+function addLines(lines) {
+  lines.forEach(line => {
+    const div = document.createElement('div');
+    div.className = 'line';
+    div.innerHTML = line || '&nbsp;';
+    terminal.appendChild(div);
+  });
+}
+
+function addCommandLine(cmd) {
+  const div = document.createElement('div');
+  div.className = 'line';
+  div.innerHTML = promptHTML() + '<span class="cmd">' + escapeHTML(cmd) + '</span>';
+  terminal.appendChild(div);
+}
+
+function escapeHTML(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+function createInputLine() {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'input-line';
+  wrapper.innerHTML = promptHTML();
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.spellcheck = false;
+  input.autocomplete = 'off';
+  input.autofocus = true;
+
+  // Command history
+  let historyIndex = -1;
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      const cmd = input.value.trim().toLowerCase();
+      wrapper.remove();
+      addCommandLine(input.value.trim() || '');
+
+      if (cmd === '') {
+        // do nothing, just new prompt
+      } else if (cmd === 'clear') {
+        terminal.innerHTML = '';
+      } else if (COMMANDS[cmd]) {
+        if (cmd !== '') commandHistory.push(cmd);
+        addLines(COMMANDS[cmd]());
+      } else {
+        if (cmd !== '') commandHistory.push(cmd);
+        addLines([
+          '<span class="highlight">  zsh: command not found: ' + escapeHTML(cmd) + '</span>',
+          '  <span class="dim">Type</span> <span class="accent">help</span> <span class="dim">to see available commands.</span>',
+          '',
+        ]);
+      }
+
+      historyIndex = -1;
+      createInputLine();
+      scrollToBottom();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (commandHistory.length > 0) {
+        if (historyIndex === -1) historyIndex = commandHistory.length;
+        historyIndex = Math.max(0, historyIndex - 1);
+        input.value = commandHistory[historyIndex];
+      }
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (historyIndex !== -1) {
+        historyIndex = Math.min(commandHistory.length, historyIndex + 1);
+        input.value = historyIndex === commandHistory.length ? '' : commandHistory[historyIndex];
+      }
+    } else if (e.key === 'Tab') {
+      e.preventDefault();
+      const partial = input.value.trim().toLowerCase();
+      const matches = Object.keys(COMMANDS).concat(['clear']).filter(c => c.startsWith(partial));
+      if (matches.length === 1) input.value = matches[0];
+    } else if (e.key === 'l' && e.ctrlKey) {
+      e.preventDefault();
+      terminal.innerHTML = '';
+      createInputLine();
+    }
+  });
+
+  wrapper.appendChild(input);
+  terminal.appendChild(wrapper);
+  input.focus();
+}
+
+const commandHistory = [];
+
+function scrollToBottom() {
+  terminal.scrollTop = terminal.scrollHeight;
+}
+
+// Click anywhere to focus input
+document.addEventListener('click', () => {
+  const input = terminal.querySelector('.input-line input');
+  if (input) input.focus();
+});
+
+// Boot
+addLines(BOOT_LINES);
+createInputLine();
+</script>
+</body>
+</html>

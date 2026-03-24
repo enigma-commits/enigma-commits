@@ -2,6 +2,18 @@
   <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=25&duration=3000&pause=1000&color=00D9FF&center=true&vCenter=true&width=900&lines=Hey+there!+I'm+Akhilesh+%F0%9F%91%8B;Building+Scalable+Systems+%26+Solving+Problems;Open+Source+Enthusiast;Competitive+Programmer" alt="Typing SVG" />
 </div>
 
+<div align="center">
+
+### 🖥️ Try My Interactive Terminal
+
+<a href="https://enigma-commits.github.io/enigma-commits/" target="_blank">
+  <img src="https://img.shields.io/badge/Launch_Terminal-%3E__type_help-00D9FF?style=for-the-badge&logo=windowsterminal&logoColor=white" alt="Launch Terminal" />
+</a>
+
+<sub>Type <code>help</code>, <code>whoami</code>, <code>skills</code>, <code>projects</code>, <code>achievements</code> and more!</sub>
+
+</div>
+
 ---
 
 ### 👨‍💻 About Me
