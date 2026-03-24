@@ -358,6 +358,24 @@ function makeInput() {
       if (cmd === 'clear') {
         T.innerHTML = '';
         makeInput();
+      } else if (cmd === 'ai') {
+        const question = raw.substring(2).trim();
+        if (!question) {
+          run([
+            '',
+            '  <span class="hd">Usage:</span> <span class="a">ai</span> <span class="o">&lt;your question&gt;</span>',
+            '',
+            '  <span class="d">Examples:</span>',
+            '  <span class="a">  ai</span> <span class="o">what does akhilesh do?</span>',
+            '  <span class="a">  ai</span> <span class="o">what tech stack does he use?</span>',
+            '  <span class="a">  ai</span> <span class="o">what is he currently working on?</span>',
+            '  <span class="a">  ai</span> <span class="o">tell me about his competitive programming</span>',
+            '',
+          ]);
+        } else {
+          // AI is async — handle differently
+          askAI(question).then(lines => { run(lines); });
+        }
       } else if (GREET.includes(cmd)) {
         run(greet());
       } else if (CMD[cmd]) {
@@ -437,6 +455,7 @@ const CMD = {
     '  <span class="a">achievements</span>    <span class="d">→</span>  <span class="o">Competitive programming</span>',
     '  <span class="a">contributions</span>   <span class="d">→</span>  <span class="o">Recent open-source work</span>',
     '  <span class="a">contact</span>         <span class="d">→</span>  <span class="o">How to reach me</span>',
+    '  <span class="a">ai</span> <span class="d">&lt;question&gt;</span>   <span class="d">→</span>  <span class="o">Ask AI anything about me</span>',
     '  <span class="a">hi / hello</span>      <span class="d">→</span>  <span class="o">Say hello!</span>',
     '  <span class="a">clear</span>           <span class="d">→</span>  <span class="o">Clear the terminal</span>',
     '<span class="d">  ───────────────────────────────────────────────</span>',
@@ -634,6 +653,170 @@ const CMD = {
     '',
   ],
 };
+
+// ═══════════════════════════════════════
+// AI INTEGRATION
+// ═══════════════════════════════════════
+
+// Set this to your Cloudflare Worker URL once deployed
+const AI_PROXY_URL = '';
+
+// GitHub context fetched on page load
+let githubContext = '';
+
+async function fetchGitHubContext() {
+  try {
+    const [profile, personalRepos, nyRepos, events] = await Promise.all([
+      fetch('https://api.github.com/users/enigma-commits').then(r => r.json()).catch(() => null),
+      fetch('https://api.github.com/users/enigma-commits/repos?sort=updated&per_page=10').then(r => r.json()).catch(() => []),
+      fetch('https://api.github.com/orgs/nammayatri/repos?sort=updated&per_page=15').then(r => r.json()).catch(() => []),
+      fetch('https://api.github.com/users/enigma-commits/events/public?per_page=30').then(r => r.json()).catch(() => []),
+    ]);
+
+    let ctx = '';
+
+    if (profile) {
+      ctx += `GitHub Profile: ${profile.public_repos} public repos, ${profile.followers} followers, ${profile.following} following.\n`;
+    }
+
+    if (personalRepos.length) {
+      ctx += '\nPersonal Repos:\n';
+      personalRepos.forEach(r => {
+        ctx += `- ${r.name}: ${r.description || 'No description'} (${r.language || 'N/A'}, ${r.stargazers_count} stars)\n`;
+      });
+    }
+
+    if (nyRepos.length) {
+      const keyRepos = ['nammayatri', 'shared-kernel', 'namma-dsl', 'gtfs-inmemory-server-rust',
+        'beckn-gateway', 'location-tracking-service', 'passetto-hs'];
+      ctx += '\nNammayatri Org Repos (Akhilesh contributes to):\n';
+      nyRepos.forEach(r => {
+        if (keyRepos.includes(r.name) || r.stargazers_count > 5) {
+          ctx += `- ${r.name}: ${r.description || 'No description'} (${r.language || 'N/A'}, ${r.stargazers_count} stars, updated ${r.updated_at?.slice(0,10)})\n`;
+        }
+      });
+    }
+
+    if (events.length) {
+      ctx += '\nRecent GitHub Activity:\n';
+      const seen = new Set();
+      events.forEach(e => {
+        const key = `${e.type}-${e.repo.name}`;
+        if (seen.has(key)) return;
+        seen.add(key);
+        if (e.type === 'PushEvent') {
+          const commits = e.payload.commits || [];
+          const msg = commits[0]?.message?.split('\n')[0] || '';
+          ctx += `- Pushed to ${e.repo.name}: "${msg}" (${e.created_at?.slice(0,10)})\n`;
+        } else if (e.type === 'PullRequestEvent') {
+          ctx += `- PR ${e.payload.action} in ${e.repo.name}: "${e.payload.pull_request?.title}" (${e.created_at?.slice(0,10)})\n`;
+        } else if (e.type === 'CreateEvent') {
+          ctx += `- Created ${e.payload.ref_type} in ${e.repo.name} (${e.created_at?.slice(0,10)})\n`;
+        }
+      });
+    }
+
+    githubContext = ctx;
+  } catch (err) {
+    githubContext = 'GitHub data unavailable.';
+  }
+}
+
+// Fetch on page load
+fetchGitHubContext();
+
+const SYSTEM_PROMPT = `You are an AI assistant on Akhilesh Singh Bhadauriya's interactive terminal portfolio website. Answer questions about Akhilesh based on the following info. Be concise — terminal-style short responses, 3-8 lines max. Use plain text only (no markdown, no HTML tags).
+
+ABOUT AKHILESH:
+- Software Development Engineer at Nammayatri (Juspay), since 2023
+- Nammayatri is India's largest open-mobility platform (open source ride-hailing)
+- Works on distributed systems, high-performance backends, real-time transit
+- Languages: Haskell (primary at work), Rust, C++, Python, JavaScript, Java
+- Infrastructure: Redis, PostgreSQL, MongoDB, AWS, Docker, Kubernetes, Prometheus, Grafana
+- Frameworks: React, Node.js, Express.js
+
+KEY PROJECTS AT NAMMAYATRI:
+- GTFS In-Memory Server (Rust): Replaced slow GraphQL with O(1) in-memory queries for real-time transit data
+- Driver Pooling System: Intelligent driver allocation using JSON Logic, 40% efficiency improvement, 30% faster pickup times
+- Event-Driven Drainer Service: Fault-tolerant service processing 350K+ operations/hour
+- Delhi-NCR Open Mobility Ecosystem: Core contributor to multimodal transport integration
+- Context-Aware Config System: In-memory config management with UI-based changes and A/B testing
+- Redis KV Framework: Contributed to framework handling millions of daily requests
+
+COMPETITIVE PROGRAMMING:
+- CodeForces: Expert (Max Rating: 1622, handle: absolute_looser)
+- CodeChef: 5-Star (Max Rating: 2147, Global Rank 92 in Starters 35)
+- ICPC: Regionalist (Kanpur Rank 56, Amritapuri)
+- Meta Hackercup: Qualified Round 2 (Rank 824 out of 12,330)
+
+CONTACT (public only):
+- GitHub: github.com/enigma-commits
+- LinkedIn: linkedin.com/in/akhilesh-singh-bhadauriya-57750b198
+- Email: akhileshsingh2314@gmail.com
+- Codeforces: codeforces.com/profile/absolute_looser
+
+RULES:
+- Never share phone numbers, addresses, or private info
+- If asked something you don't know, say so honestly
+- Keep responses short and terminal-friendly
+- Be friendly but professional`;
+
+async function askAI(question) {
+  if (!AI_PROXY_URL) {
+    return [
+      '',
+      '  <span class="w b">  AI is currently under training...</span>',
+      '',
+      '  <span class="d">  The AI assistant is being set up and will be</span>',
+      '  <span class="d">  available soon. In the meantime, try these commands:</span>',
+      '',
+      '  <span class="a">  whoami</span> <span class="d">|</span> <span class="a">skills</span> <span class="d">|</span> <span class="a">projects</span> <span class="d">|</span> <span class="a">achievements</span> <span class="d">|</span> <span class="a">experience</span>',
+      '',
+      '  <span class="d">  ▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░░░ Training: 60% complete</span>',
+      '',
+    ];
+  }
+
+  addLine('  <span class="d">  Thinking...</span>', true);
+
+  try {
+    const fullPrompt = SYSTEM_PROMPT + '\n\nLIVE GITHUB DATA:\n' + githubContext;
+
+    const res = await fetch(AI_PROXY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system: fullPrompt,
+        message: question,
+      }),
+    });
+
+    if (!res.ok) throw new Error('AI request failed');
+
+    const data = await res.json();
+    const reply = data.reply || 'Sorry, I could not process that.';
+
+    // Remove the "Thinking..." line
+    const thinkingLine = T.querySelector('.line:last-of-type');
+    if (thinkingLine && thinkingLine.textContent.includes('Thinking')) {
+      thinkingLine.remove();
+    }
+
+    const lines = [''];
+    reply.split('\n').forEach(line => {
+      lines.push('  <span class="o">' + esc(line) + '</span>');
+    });
+    lines.push('');
+    return lines;
+  } catch (err) {
+    return [
+      '',
+      '  <span class="h">  AI error: Could not reach the AI service.</span>',
+      '  <span class="d">  Please try again later.</span>',
+      '',
+    ];
+  }
+}
 
 const GREET = ['hi','hello','hey','hola','sup','yo','greetings','howdy','namaste'];
 
