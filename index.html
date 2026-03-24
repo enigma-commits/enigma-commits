@@ -276,6 +276,301 @@ function spawnSparks(x, y) {
 }
 
 // ═══════════════════════════════════════
+// VIRTUAL FILESYSTEM
+// ═══════════════════════════════════════
+const FS = {
+  '~': {
+    _type: 'dir',
+    'projects': {
+      _type: 'dir',
+      'nammayatri': {
+        _type: 'dir',
+        'README.md': { _type: 'file', content: '# Nammayatri\nIndia\'s largest open-mobility platform.\nOpen source ride-hailing built with Haskell.' },
+        'driver-pooling.hs': { _type: 'file', content: '-- Driver Pooling System\n-- Intelligent allocation using JSON Logic\n-- 40% efficiency improvement, 30% faster pickups\n\nmodule DriverPool where\n\nimport qualified Data.HashMap as HM\n\nallocateDriver :: Request -> IO Driver\nallocateDriver req = do\n  pool <- getAvailableDrivers req.location\n  evaluate (jsonLogicRules req) pool' },
+        'gtfs-server': {
+          _type: 'dir',
+          'main.rs': { _type: 'file', content: '// GTFS In-Memory Server\n// O(1) lookup replacing slow GraphQL queries\n\nuse std::collections::HashMap;\n\nstruct GtfsStore {\n    routes: HashMap<String, Route>,\n    stops: HashMap<String, Stop>,\n    trips: HashMap<String, Trip>,\n}\n\nimpl GtfsStore {\n    fn query(&self, stop_id: &str) -> Option<&Stop> {\n        self.stops.get(stop_id) // O(1)\n    }\n}' },
+          'Cargo.toml': { _type: 'file', content: '[package]\nname = "gtfs-inmemory-server"\nversion = "1.0.0"\nedition = "2021"\n\n[dependencies]\nactix-web = "4"\nserde = { version = "1", features = ["derive"] }\ntokio = { version = "1", features = ["full"] }' },
+        },
+        'drainer-service': {
+          _type: 'dir',
+          'Main.hs': { _type: 'file', content: '-- Event-Driven Drainer Service\n-- Fault-tolerant, 350K+ ops/hour\n\nmodule Main where\n\nimport Control.Concurrent.Async\nimport Database.Redis as R\n\nmain :: IO ()\nmain = do\n  putStrLn "Starting drainer service..."\n  conn <- R.connect defaultConnectInfo\n  forever $ drainEvents conn\n\ndrainEvents :: R.Connection -> IO ()\ndrainEvents conn = do\n  events <- R.rpop conn "event_queue"\n  mapConcurrently processEvent events' },
+        },
+      },
+      'competitive-programming': {
+        _type: 'dir',
+        'codeforces': {
+          _type: 'dir',
+          'rating.txt': { _type: 'file', content: 'Handle: absolute_looser\nRating: Expert (Max: 1622)\nProblems Solved: 500+' },
+        },
+        'codechef': {
+          _type: 'dir',
+          'rating.txt': { _type: 'file', content: 'Rating: 5-Star (Max: 2147)\nGlobal Rank 92 in Starters 35' },
+        },
+        'dp_template.cpp': { _type: 'file', content: '#include <bits/stdc++.h>\nusing namespace std;\n\nint dp[100005];\n\nint solve(int n) {\n    if (n <= 1) return n;\n    if (dp[n] != -1) return dp[n];\n    return dp[n] = solve(n-1) + solve(n-2);\n}\n\nint main() {\n    memset(dp, -1, sizeof(dp));\n    int t; cin >> t;\n    while(t--) {\n        int n; cin >> n;\n        cout << solve(n) << "\\n";\n    }\n}' },
+      },
+    },
+    'notes.txt': { _type: 'file', content: 'TODO:\n- Optimize GTFS query latency\n- Review PR #482 on shared-kernel\n- Prep for next CodeForces round\n- Write blog post on event-driven architecture' },
+    '.config': {
+      _type: 'dir',
+      'settings.json': { _type: 'file', content: '{\n  "theme": "neon-cyberpunk",\n  "editor": "neovim",\n  "shell": "zsh",\n  "terminal": "kitty",\n  "font": "JetBrains Mono"\n}' },
+    },
+    'resume.txt': { _type: 'file', content: 'Akhilesh Singh Bhadauriya\nSoftware Development Engineer @ Nammayatri (Juspay)\n\nExpertise: Distributed Systems, High-Performance Computing\nLanguages: Haskell, Rust, C++, Python, JavaScript\nInfra: Redis, PostgreSQL, AWS, Docker, K8s\n\nCompetitive Programming:\n  CodeForces Expert | CodeChef 5-Star | ICPC Regionalist' },
+  }
+};
+
+let cwd = '~';
+
+function resolvePath(path) {
+  if (!path) return cwd;
+  let parts;
+  if (path.startsWith('~')) {
+    parts = ['~', ...path.slice(1).split('/').filter(Boolean)];
+  } else if (path.startsWith('/')) {
+    parts = ['~', ...path.slice(1).split('/').filter(Boolean)];
+  } else {
+    parts = [...cwd.split('/'), ...path.split('/').filter(Boolean)];
+  }
+  // resolve .. and .
+  const resolved = [];
+  for (const p of parts) {
+    if (p === '..') { if (resolved.length > 1) resolved.pop(); }
+    else if (p !== '.') resolved.push(p);
+  }
+  return resolved.join('/') || '~';
+}
+
+function getNode(path) {
+  const parts = path.split('/').filter(Boolean);
+  let node = null;
+  for (const p of parts) {
+    if (p === '~') { node = FS['~']; }
+    else if (node && node[p]) { node = node[p]; }
+    else { return null; }
+  }
+  return node;
+}
+
+function getParentAndName(path) {
+  const parts = path.split('/').filter(Boolean);
+  const name = parts.pop();
+  const parentPath = parts.join('/') || '~';
+  return { parent: getNode(parentPath), name, parentPath };
+}
+
+function shortCwd() {
+  if (cwd === '~') return '~';
+  return '~/' + cwd.split('/').slice(1).join('/');
+}
+
+// BASH COMMANDS
+const BASH = {
+  pwd: () => ['  <span class="o">' + shortCwd() + '</span>'],
+
+  ls: (args) => {
+    const target = args[0] ? resolvePath(args[0]) : cwd;
+    const node = getNode(target);
+    if (!node || node._type === 'file') return ['  <span class="h">ls: cannot access: No such directory</span>'];
+    const entries = Object.keys(node).filter(k => k !== '_type');
+    if (!entries.length) return ['  <span class="d">(empty)</span>'];
+    const lines = [''];
+    let row = '  ';
+    entries.forEach(e => {
+      const isDir = node[e]._type === 'dir';
+      const display = isDir
+        ? '<span class="a b">' + esc(e) + '/</span>'
+        : (e.endsWith('.rs') || e.endsWith('.hs') ? '<span class="s">' + esc(e) + '</span>'
+          : e.endsWith('.txt') || e.endsWith('.md') ? '<span class="w">' + esc(e) + '</span>'
+          : e.endsWith('.json') || e.endsWith('.toml') ? '<span class="o">' + esc(e) + '</span>'
+          : e.startsWith('.') ? '<span class="d">' + esc(e) + '</span>'
+          : '<span class="c">' + esc(e) + '</span>');
+      row += display + '  ';
+    });
+    lines.push(row);
+    lines.push('');
+    return lines;
+  },
+
+  cd: (args) => {
+    if (!args[0] || args[0] === '~') { cwd = '~'; return []; }
+    const target = resolvePath(args[0]);
+    const node = getNode(target);
+    if (!node) return ['  <span class="h">cd: no such directory: ' + esc(args[0]) + '</span>'];
+    if (node._type === 'file') return ['  <span class="h">cd: not a directory: ' + esc(args[0]) + '</span>'];
+    cwd = target;
+    return [];
+  },
+
+  cat: (args) => {
+    if (!args[0]) return ['  <span class="h">cat: missing file operand</span>'];
+    const target = resolvePath(args[0]);
+    const node = getNode(target);
+    if (!node) return ['  <span class="h">cat: ' + esc(args[0]) + ': No such file</span>'];
+    if (node._type === 'dir') return ['  <span class="h">cat: ' + esc(args[0]) + ': Is a directory</span>'];
+    const lines = [''];
+    node.content.split('\n').forEach(l => {
+      lines.push('  <span class="o">' + esc(l) + '</span>');
+    });
+    lines.push('');
+    return lines;
+  },
+
+  mkdir: (args) => {
+    if (!args[0]) return ['  <span class="h">mkdir: missing operand</span>'];
+    const target = resolvePath(args[0]);
+    const { parent, name } = getParentAndName(target);
+    if (!parent) return ['  <span class="h">mkdir: cannot create: parent not found</span>'];
+    if (parent[name]) return ['  <span class="h">mkdir: ' + esc(name) + ': already exists</span>'];
+    parent[name] = { _type: 'dir' };
+    return [];
+  },
+
+  touch: (args) => {
+    if (!args[0]) return ['  <span class="h">touch: missing operand</span>'];
+    const target = resolvePath(args[0]);
+    const { parent, name } = getParentAndName(target);
+    if (!parent) return ['  <span class="h">touch: cannot create: parent not found</span>'];
+    if (!parent[name]) parent[name] = { _type: 'file', content: '' };
+    return [];
+  },
+
+  rm: (args) => {
+    if (!args[0]) return ['  <span class="h">rm: missing operand</span>'];
+    const flag = args[0] === '-rf' || args[0] === '-r';
+    const name = flag ? args[1] : args[0];
+    if (!name) return ['  <span class="h">rm: missing operand</span>'];
+    const target = resolvePath(name);
+    const pn = getParentAndName(target);
+    if (!pn.parent || !pn.parent[pn.name]) return ['  <span class="h">rm: ' + esc(name) + ': No such file</span>'];
+    if (pn.parent[pn.name]._type === 'dir' && !flag) return ['  <span class="h">rm: ' + esc(name) + ': is a directory (use -rf)</span>'];
+    delete pn.parent[pn.name];
+    return [];
+  },
+
+  echo: (args) => {
+    const full = args.join(' ');
+    // Handle echo "text" > file
+    const redirect = full.match(/^(.+?)\s*>\s*(.+)$/);
+    if (redirect) {
+      const text = redirect[1].replace(/^["']|["']$/g, '');
+      const target = resolvePath(redirect[2].trim());
+      const { parent, name } = getParentAndName(target);
+      if (!parent) return ['  <span class="h">echo: cannot write: parent not found</span>'];
+      if (parent[name] && parent[name]._type === 'dir') return ['  <span class="h">echo: ' + esc(name) + ': Is a directory</span>'];
+      parent[name] = { _type: 'file', content: text };
+      return [];
+    }
+    // Handle echo "text" >> file (append)
+    const append = full.match(/^(.+?)\s*>>\s*(.+)$/);
+    if (append) {
+      const text = append[1].replace(/^["']|["']$/g, '');
+      const target = resolvePath(append[2].trim());
+      const node = getNode(target);
+      if (node && node._type === 'file') {
+        node.content += '\n' + text;
+      } else {
+        const { parent, name } = getParentAndName(target);
+        if (!parent) return ['  <span class="h">echo: cannot write: parent not found</span>'];
+        parent[name] = { _type: 'file', content: text };
+      }
+      return [];
+    }
+    return ['  <span class="o">' + esc(full.replace(/^["']|["']$/g, '')) + '</span>'];
+  },
+
+  tree: (args) => {
+    const target = args[0] ? resolvePath(args[0]) : cwd;
+    const node = getNode(target);
+    if (!node || node._type === 'file') return ['  <span class="h">tree: not a directory</span>'];
+    const lines = ['', '  <span class="a b">' + esc(target.split('/').pop() || '~') + '/</span>'];
+    function walk(n, prefix) {
+      const entries = Object.keys(n).filter(k => k !== '_type' && k !== 'content');
+      entries.forEach((e, idx) => {
+        const last = idx === entries.length - 1;
+        const connector = last ? '└── ' : '├── ';
+        const isDir = n[e]._type === 'dir';
+        if (isDir) {
+          lines.push('  <span class="d">' + esc(prefix + connector) + '</span><span class="a b">' + esc(e) + '/</span>');
+          walk(n[e], prefix + (last ? '    ' : '│   '));
+        } else {
+          lines.push('  <span class="d">' + esc(prefix + connector) + '</span><span class="o">' + esc(e) + '</span>');
+        }
+      });
+    }
+    walk(node, '');
+    lines.push('');
+    return lines;
+  },
+
+  whoami: () => ['  <span class="o">akhilesh</span>'],
+  hostname: () => ['  <span class="o">macbook</span>'],
+  date: () => ['  <span class="o">' + new Date().toString() + '</span>'],
+  uname: () => ['  <span class="o">Darwin macbook 23.1.0 arm64</span>'],
+
+  neofetch: () => [
+    '',
+    '  <span class="a">        .\'</span>       <span class="o b">akhilesh</span><span class="d">@</span><span class="s b">macbook</span>',
+    '  <span class="a">       .\'\'.</span>      <span class="d">─────────────────</span>',
+    '  <span class="a">      .\'\'\'\'.</span>     <span class="a">OS:</span>     <span class="o">macOS (simulated)</span>',
+    '  <span class="a">     .\'\'\'\'\'.</span>    <span class="a">Shell:</span>  <span class="o">zsh 5.9</span>',
+    '  <span class="a">    .\'\'\'\'\'\'.</span>   <span class="a">Editor:</span> <span class="o">neovim</span>',
+    '  <span class="a">   .\'\'\'\'\'\'\'.</span>  <span class="a">Font:</span>   <span class="o">JetBrains Mono</span>',
+    '  <span class="a">  .\'\'\'\'\'\'\'\'.</span> <span class="a">Theme:</span>  <span class="o">neon-cyberpunk</span>',
+    '  <span class="a"> .\'\'\'\'\'\'\'\'\'.</span><span class="a">Uptime:</span> <span class="o">' + Math.floor(Math.random() * 30 + 1) + ' days</span>',
+    '',
+    '  <span class="h">███</span><span class="w">███</span><span class="s">███</span><span class="a">███</span><span class="p">███</span><span class="c">███</span>',
+    '',
+  ],
+
+  vim: (args) => [
+    '  <span class="d">Opening ' + esc(args[0] || 'untitled') + '... just kidding.</span>',
+    '  <span class="w">Tip: Use</span> <span class="a">cat</span> <span class="w">to read files,</span> <span class="a">echo "text" > file</span> <span class="w">to write.</span>',
+  ],
+  nano: (args) => BASH.vim(args),
+  code: (args) => BASH.vim(args),
+
+  grep: (args) => {
+    if (args.length < 2) return ['  <span class="h">grep: usage: grep pattern file</span>'];
+    const pattern = args[0];
+    const target = resolvePath(args[1]);
+    const node = getNode(target);
+    if (!node || node._type === 'dir') return ['  <span class="h">grep: ' + esc(args[1]) + ': No such file</span>'];
+    const lines = [];
+    node.content.split('\n').forEach(l => {
+      if (l.toLowerCase().includes(pattern.toLowerCase())) {
+        const highlighted = l.replace(new RegExp('(' + pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi'),
+          '<span class="h b">$1</span>');
+        lines.push('  <span class="o">' + highlighted + '</span>');
+      }
+    });
+    return lines.length ? ['', ...lines, ''] : ['  <span class="d">No matches found.</span>'];
+  },
+
+  wc: (args) => {
+    if (!args[0]) return ['  <span class="h">wc: missing file</span>'];
+    const target = resolvePath(args[0]);
+    const node = getNode(target);
+    if (!node || node._type === 'dir') return ['  <span class="h">wc: ' + esc(args[0]) + ': No such file</span>'];
+    const lines = node.content.split('\n');
+    const words = node.content.split(/\s+/).filter(Boolean);
+    return ['  <span class="o">' + lines.length + ' lines  ' + words.length + ' words  ' + node.content.length + ' chars  ' + esc(args[0]) + '</span>'];
+  },
+
+  head: (args) => {
+    if (!args[0]) return ['  <span class="h">head: missing file</span>'];
+    const target = resolvePath(args[0]);
+    const node = getNode(target);
+    if (!node || node._type === 'dir') return ['  <span class="h">head: ' + esc(args[0]) + ': No such file</span>'];
+    const lines = [''];
+    node.content.split('\n').slice(0, 5).forEach(l => {
+      lines.push('  <span class="o">' + esc(l) + '</span>');
+    });
+    lines.push('');
+    return lines;
+  },
+};
+
+// ═══════════════════════════════════════
 // TERMINAL ENGINE
 // ═══════════════════════════════════════
 const T = document.getElementById('t');
@@ -283,7 +578,8 @@ const history = [];
 let inputEl = null;
 
 function pr() {
-  return '<span class="p">akhilesh</span><span class="d">@</span><span class="g">macbook</span> <span class="d">~ %</span> ';
+  const dir = cwd === '~' ? '~' : cwd.split('/').pop();
+  return '<span class="p">akhilesh</span><span class="d">@</span><span class="g">macbook</span> <span class="a">' + esc(dir) + '</span> <span class="d">%</span> ';
 }
 
 function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
@@ -380,6 +676,47 @@ function makeInput() {
         run(greet());
       } else if (CMD[cmd]) {
         run(CMD[cmd]());
+      } else if (BASH[cmd]) {
+        const args = raw.split(/\s+/).slice(1);
+        const result = BASH[cmd](args);
+        run(result);
+      } else if (['apt','brew','npm','pip','pip3','yarn','pnpm','cargo','gem','go','dnf','yum','pacman','snap','flatpak','apt-get','dpkg'].includes(cmd)) {
+        run([
+          '',
+          '  <span class="h b">Permission denied.</span>',
+          '',
+          '  <span class="o">Installing external packages is disabled for</span>',
+          '  <span class="o">security purposes on this terminal.</span>',
+          '',
+          '  <span class="d">This is a sandboxed environment — no external</span>',
+          '  <span class="d">tools or dependencies can be installed.</span>',
+          '',
+        ]);
+      } else if (['install','add','uninstall','remove','upgrade','update'].includes(cmd)) {
+        run([
+          '',
+          '  <span class="h b">Operation not permitted.</span>',
+          '',
+          '  <span class="o">System modifications are restricted in this</span>',
+          '  <span class="o">sandboxed terminal for safety.</span>',
+          '',
+        ]);
+      } else if (['ssh','scp','wget','curl'].includes(cmd)) {
+        run([
+          '',
+          '  <span class="h b">Network access restricted.</span>',
+          '',
+          '  <span class="o">External network connections are not allowed</span>',
+          '  <span class="o">in this sandboxed environment.</span>',
+          '',
+        ]);
+      } else if (cmd === 'exit' || cmd === 'logout') {
+        run([
+          '',
+          '  <span class="w">Goodbye! Thanks for visiting.</span>',
+          '  <span class="d">Refresh the page to start a new session.</span>',
+          '',
+        ]);
       } else {
         addLine('<span class="h">  zsh: command not found: ' + esc(cmd) + '</span>', false);
         addLine('  <span class="d">Type</span> <span class="a">help</span> <span class="d">to see available commands.</span>', false);
@@ -458,6 +795,23 @@ const CMD = {
     '  <span class="a">ai</span> <span class="d">&lt;question&gt;</span>   <span class="d">→</span>  <span class="o">Ask AI anything about me</span>',
     '  <span class="a">hi / hello</span>      <span class="d">→</span>  <span class="o">Say hello!</span>',
     '  <span class="a">clear</span>           <span class="d">→</span>  <span class="o">Clear the terminal</span>',
+    '<span class="d">  ───────────────────────────────────────────────</span>',
+    '',
+    '<span class="hd">  Shell Commands</span>',
+    '<span class="d">  ───────────────────────────────────────────────</span>',
+    '  <span class="a">ls</span> <span class="d">[path]</span>       <span class="d">→</span>  <span class="o">List files</span>',
+    '  <span class="a">cd</span> <span class="d">&lt;path&gt;</span>       <span class="d">→</span>  <span class="o">Change directory</span>',
+    '  <span class="a">pwd</span>             <span class="d">→</span>  <span class="o">Print working directory</span>',
+    '  <span class="a">cat</span> <span class="d">&lt;file&gt;</span>      <span class="d">→</span>  <span class="o">Read a file</span>',
+    '  <span class="a">tree</span> <span class="d">[path]</span>     <span class="d">→</span>  <span class="o">Show directory tree</span>',
+    '  <span class="a">mkdir</span> <span class="d">&lt;name&gt;</span>    <span class="d">→</span>  <span class="o">Create directory</span>',
+    '  <span class="a">touch</span> <span class="d">&lt;name&gt;</span>    <span class="d">→</span>  <span class="o">Create file</span>',
+    '  <span class="a">rm</span> <span class="d">[-rf] &lt;name&gt;</span> <span class="d">→</span>  <span class="o">Delete file or folder</span>',
+    '  <span class="a">echo</span> <span class="d">"text" > file</span> <span class="d">→</span> <span class="o">Write to file</span>',
+    '  <span class="a">grep</span> <span class="d">pattern file</span> <span class="d">→</span> <span class="o">Search in file</span>',
+    '  <span class="a">head</span> <span class="d">&lt;file&gt;</span>     <span class="d">→</span>  <span class="o">First 5 lines</span>',
+    '  <span class="a">wc</span> <span class="d">&lt;file&gt;</span>       <span class="d">→</span>  <span class="o">Count lines/words</span>',
+    '  <span class="a">neofetch</span>        <span class="d">→</span>  <span class="o">System info</span>',
     '<span class="d">  ───────────────────────────────────────────────</span>',
     '  <span class="d">Secrets:</span> <span class="a">sudo</span> <span class="d">|</span> <span class="a">matrix</span> <span class="d">|</span> <span class="a">hack</span> <span class="d">|</span> <span class="a">moo</span> <span class="d">|</span> <span class="a">secret</span>',
     '',
