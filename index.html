@@ -89,7 +89,7 @@
 
     /* Body */
     .terminal-body {
-      padding: 22px;
+      padding: 22px 22px 22px 28px;
       min-height: 480px;
       max-height: 75vh;
       overflow-y: auto;
@@ -106,7 +106,6 @@
       font-size: 13.5px;
       white-space: pre-wrap;
       word-break: break-word;
-      padding-left: 4px;
     }
     .line.animated {
       opacity: 0;
@@ -139,9 +138,9 @@
       font-size: 13.5px;
       margin-top: 2px;
       min-height: 24px;
-      padding-left: 4px;
+      white-space: pre;
     }
-    .input-line .p, .input-line .g { white-space: pre; }
+    .input-line .p, .input-line .g, .input-line .a, .input-line .d { white-space: pre; }
     .input-line input {
       flex: 1;
       background: none;
@@ -178,6 +177,82 @@
     .input-line.typing {
       background: linear-gradient(90deg, rgba(255, 46, 99, 0.06) 0%, rgba(0, 255, 136, 0.03) 40%, transparent 70%);
       border-radius: 4px;
+    }
+
+    /* Vim editor */
+    .vim-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: #0a0a12;
+      display: flex;
+      flex-direction: column;
+      z-index: 10;
+      padding: 0;
+    }
+    .vim-header {
+      padding: 6px 16px;
+      background: #12141c;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-size: 12px;
+      color: #6e7590;
+      display: flex;
+      justify-content: space-between;
+    }
+    .vim-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0;
+    }
+    .vim-body textarea {
+      width: 100%;
+      height: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #e0e4ef;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      padding: 12px 16px;
+      resize: none;
+      tab-size: 2;
+    }
+    .vim-footer {
+      padding: 6px 16px;
+      background: #12141c;
+      border-top: 1px solid rgba(255,255,255,0.04);
+      font-size: 12px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .vim-footer .mode { color: #00ff88; font-weight: 600; }
+    .vim-footer .cmd-line {
+      color: #e0e4ef;
+      flex: 1;
+      text-align: right;
+    }
+    .vim-footer .cmd-input {
+      background: none;
+      border: none;
+      outline: none;
+      color: #e0e4ef;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      width: 120px;
+      text-align: right;
+    }
+    .vim-line-numbers {
+      position: absolute;
+      left: 0;
+      top: 0;
+      padding: 12px 8px 12px 8px;
+      text-align: right;
+      color: #333750;
+      font-size: 13px;
+      line-height: 1.7;
+      user-select: none;
+      pointer-events: none;
+      min-width: 36px;
     }
 
     /* Mobile */
@@ -524,12 +599,14 @@ const BASH = {
     '',
   ],
 
-  vim: (args) => [
-    '  <span class="d">Opening ' + esc(args[0] || 'untitled') + '... just kidding.</span>',
-    '  <span class="w">Tip: Use</span> <span class="a">cat</span> <span class="w">to read files,</span> <span class="a">echo "text" > file</span> <span class="w">to write.</span>',
-  ],
+  vim: (args) => {
+    const fname = args[0];
+    if (!fname) return ['  <span class="h">vim: missing filename</span>'];
+    openVim(fname);
+    return null; // signals: don't call run(), vim takes over
+  },
   nano: (args) => BASH.vim(args),
-  code: (args) => BASH.vim(args),
+  vi: (args) => BASH.vim(args),
 
   grep: (args) => {
     if (args.length < 2) return ['  <span class="h">grep: usage: grep pattern file</span>'];
@@ -681,6 +758,7 @@ function makeInput() {
       } else if (BASH[cmd]) {
         const args = raw.split(/\s+/).slice(1);
         const result = BASH[cmd](args);
+        if (result === null) return; // vim takes over
         run(result);
       } else if (['apt','brew','npm','pip','pip3','yarn','pnpm','cargo','gem','go','dnf','yum','pacman','snap','flatpak','apt-get','dpkg'].includes(cmd)) {
         run([
@@ -1176,6 +1254,229 @@ function greet() {
     '  <span class="o">Feel free to explore — type <span class="a">help</span> to see what I can do!</span>',
     '',
   ];
+}
+
+// ═══════════════════════════════════════
+// VIM EDITOR
+// ═══════════════════════════════════════
+function openVim(fname) {
+  const target = resolvePath(fname);
+  const node = getNode(target);
+  const isNew = !node;
+  const isDir = node && node._type === 'dir';
+  if (isDir) {
+    addLine('  <span class="h">vim: ' + esc(fname) + ': is a directory</span>', false);
+    makeInput();
+    return;
+  }
+
+  const content = node ? node.content : '';
+  const body = T;
+
+  // Create vim overlay
+  const overlay = document.createElement('div');
+  overlay.className = 'vim-overlay';
+
+  const header = document.createElement('div');
+  header.className = 'vim-header';
+  header.innerHTML = '<span>' + esc(fname) + (isNew ? ' [New File]' : '') + '</span><span class="d">vim</span>';
+
+  const vimBody = document.createElement('div');
+  vimBody.className = 'vim-body';
+  vimBody.style.position = 'relative';
+
+  const textarea = document.createElement('textarea');
+  textarea.value = content;
+  textarea.spellcheck = false;
+  textarea.autocomplete = 'off';
+  textarea.style.paddingLeft = '44px';
+
+  const lineNums = document.createElement('div');
+  lineNums.className = 'vim-line-numbers';
+
+  const footer = document.createElement('div');
+  footer.className = 'vim-footer';
+
+  const modeSpan = document.createElement('span');
+  modeSpan.className = 'mode';
+  modeSpan.textContent = '-- NORMAL --';
+
+  const cmdSpan = document.createElement('span');
+  cmdSpan.className = 'cmd-line';
+  cmdSpan.textContent = '';
+
+  footer.appendChild(modeSpan);
+  footer.appendChild(cmdSpan);
+
+  vimBody.appendChild(lineNums);
+  vimBody.appendChild(textarea);
+  overlay.appendChild(header);
+  overlay.appendChild(vimBody);
+  overlay.appendChild(footer);
+  body.appendChild(overlay);
+
+  let mode = 'normal'; // normal | insert | command
+  let cmdBuffer = '';
+  let modified = false;
+
+  function updateLineNumbers() {
+    const lines = textarea.value.split('\n');
+    lineNums.innerHTML = lines.map((_, i) => '<span style="display:block">' + (i + 1) + '</span>').join('');
+  }
+
+  function updateFooter() {
+    if (mode === 'insert') {
+      modeSpan.textContent = '-- INSERT --';
+      modeSpan.style.color = '#00ff88';
+      cmdSpan.textContent = (modified ? '[+] ' : '') + (textarea.value.split('\n').length) + ' lines';
+    } else if (mode === 'command') {
+      modeSpan.textContent = '';
+      cmdSpan.textContent = ':' + cmdBuffer;
+    } else {
+      modeSpan.textContent = '-- NORMAL --';
+      modeSpan.style.color = '#00c8ff';
+      cmdSpan.textContent = (modified ? '[+] ' : '') + (textarea.value.split('\n').length) + ' lines';
+    }
+  }
+
+  function saveFile() {
+    const { parent, name } = getParentAndName(target);
+    if (parent) {
+      parent[name] = { _type: 'file', content: textarea.value };
+      modified = false;
+      return true;
+    }
+    return false;
+  }
+
+  function closeVim(saved) {
+    overlay.remove();
+    if (saved) {
+      addLine('  <span class="d">"' + esc(fname) + '" written</span>', false);
+    }
+    makeInput();
+  }
+
+  // Initial state
+  textarea.readOnly = true;
+  updateLineNumbers();
+  updateFooter();
+  textarea.focus();
+
+  textarea.addEventListener('input', () => {
+    modified = true;
+    updateLineNumbers();
+    updateFooter();
+  });
+
+  textarea.addEventListener('keydown', (e) => {
+    if (mode === 'normal') {
+      e.preventDefault();
+      if (e.key === 'i') {
+        mode = 'insert';
+        textarea.readOnly = false;
+        updateFooter();
+      } else if (e.key === 'a') {
+        mode = 'insert';
+        textarea.readOnly = false;
+        // move cursor forward 1
+        const pos = textarea.selectionStart;
+        textarea.selectionStart = textarea.selectionEnd = Math.min(pos + 1, textarea.value.length);
+        updateFooter();
+      } else if (e.key === 'o') {
+        mode = 'insert';
+        textarea.readOnly = false;
+        // new line below
+        const pos = textarea.selectionStart;
+        const val = textarea.value;
+        const lineEnd = val.indexOf('\n', pos);
+        const insertAt = lineEnd === -1 ? val.length : lineEnd;
+        textarea.value = val.slice(0, insertAt) + '\n' + val.slice(insertAt);
+        textarea.selectionStart = textarea.selectionEnd = insertAt + 1;
+        modified = true;
+        updateLineNumbers();
+        updateFooter();
+      } else if (e.key === ':') {
+        mode = 'command';
+        cmdBuffer = '';
+        updateFooter();
+      } else if (e.key === 'G') {
+        textarea.selectionStart = textarea.selectionEnd = textarea.value.length;
+      } else if (e.key === 'g') {
+        textarea.selectionStart = textarea.selectionEnd = 0;
+      } else if (e.key === 'j') {
+        // move down — approximate
+        const pos = textarea.selectionStart;
+        const val = textarea.value;
+        const nextNl = val.indexOf('\n', pos);
+        if (nextNl !== -1) textarea.selectionStart = textarea.selectionEnd = nextNl + 1;
+      } else if (e.key === 'k') {
+        const pos = textarea.selectionStart;
+        const val = textarea.value;
+        const prevNl = val.lastIndexOf('\n', pos - 1);
+        if (prevNl !== -1) textarea.selectionStart = textarea.selectionEnd = prevNl;
+      } else if (e.key === 'd' && e.shiftKey === false) {
+        // dd - delete line (simplified: just mark, need double press)
+        // simplified: just delete current line on 'x'
+      } else if (e.key === 'x') {
+        const pos = textarea.selectionStart;
+        const val = textarea.value;
+        if (pos < val.length) {
+          textarea.value = val.slice(0, pos) + val.slice(pos + 1);
+          textarea.selectionStart = textarea.selectionEnd = pos;
+          modified = true;
+          updateLineNumbers();
+          updateFooter();
+        }
+      }
+    } else if (mode === 'insert') {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        mode = 'normal';
+        textarea.readOnly = true;
+        updateFooter();
+      }
+      // all other keys: let textarea handle naturally
+    } else if (mode === 'command') {
+      e.preventDefault();
+      if (e.key === 'Enter') {
+        const c = cmdBuffer.trim();
+        if (c === 'w') {
+          saveFile();
+          mode = 'normal';
+          updateFooter();
+        } else if (c === 'q') {
+          if (modified) {
+            cmdSpan.textContent = 'E37: No write since last change (add ! to override)';
+            mode = 'normal';
+            setTimeout(updateFooter, 1500);
+          } else {
+            closeVim(false);
+          }
+        } else if (c === 'wq' || c === 'x') {
+          saveFile();
+          closeVim(true);
+        } else if (c === 'q!') {
+          closeVim(false);
+        } else {
+          cmdSpan.textContent = 'E492: Not a command: ' + c;
+          mode = 'normal';
+          setTimeout(updateFooter, 1500);
+        }
+      } else if (e.key === 'Escape') {
+        mode = 'normal';
+        cmdBuffer = '';
+        updateFooter();
+      } else if (e.key === 'Backspace') {
+        cmdBuffer = cmdBuffer.slice(0, -1);
+        if (!cmdBuffer && !cmdBuffer.length) { mode = 'normal'; }
+        updateFooter();
+      } else if (e.key.length === 1) {
+        cmdBuffer += e.key;
+        updateFooter();
+      }
+    }
+  });
 }
 
 // ── Boot ──
