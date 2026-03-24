@@ -15,58 +15,71 @@
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      background: #0a0e14;
+      background: #080b0f;
       background-image:
-        radial-gradient(ellipse at 20% 50%, rgba(0, 217, 255, 0.03) 0%, transparent 60%),
-        radial-gradient(ellipse at 80% 50%, rgba(122, 162, 247, 0.03) 0%, transparent 60%);
+        radial-gradient(ellipse at 25% 0%, rgba(255, 100, 50, 0.04) 0%, transparent 50%),
+        radial-gradient(ellipse at 75% 100%, rgba(0, 200, 120, 0.03) 0%, transparent 50%);
       display: flex;
       align-items: center;
       justify-content: center;
       min-height: 100vh;
       font-family: 'JetBrains Mono', monospace;
       padding: 24px;
+      overflow: hidden;
+    }
+
+    /* Particle canvas behind terminal */
+    #particles {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      pointer-events: none;
     }
 
     .terminal-window {
+      position: relative;
+      z-index: 1;
       width: 100%;
       max-width: 820px;
-      background: #11141b;
-      border-radius: 14px;
+      background: #0c0f15;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
       box-shadow:
-        0 0 0 1px rgba(0, 217, 255, 0.08),
-        0 20px 60px rgba(0, 0, 0, 0.5),
-        0 0 100px rgba(0, 217, 255, 0.04);
+        0 24px 80px rgba(0, 0, 0, 0.6),
+        0 0 0 1px rgba(0, 200, 120, 0.06),
+        0 0 80px rgba(255, 100, 50, 0.03);
       overflow: hidden;
       transition: box-shadow 0.5s ease;
     }
     .terminal-window:hover {
       box-shadow:
-        0 0 0 1px rgba(0, 217, 255, 0.12),
-        0 25px 80px rgba(0, 0, 0, 0.6),
-        0 0 120px rgba(0, 217, 255, 0.07);
+        0 30px 100px rgba(0, 0, 0, 0.7),
+        0 0 0 1px rgba(0, 200, 120, 0.1),
+        0 0 120px rgba(255, 100, 50, 0.05);
     }
 
     /* Title bar */
     .title-bar {
-      background: #0d1017;
+      background: #090c11;
       padding: 14px 18px;
       display: flex;
       align-items: center;
       gap: 8px;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
       user-select: none;
     }
     .dots { display: flex; gap: 8px; }
     .dot {
       width: 13px; height: 13px; border-radius: 50%;
-      transition: opacity 0.2s;
+      transition: all 0.2s;
     }
-    .dot:hover { opacity: 0.7; }
+    .dot:hover { transform: scale(1.15); }
     .dot.r { background: #ff5f57; }
     .dot.y { background: #febc2e; }
     .dot.g { background: #28c840; }
     .title-bar .title {
-      flex: 1; text-align: center; color: #4a5068;
+      flex: 1; text-align: center; color: #3d4455;
       font-size: 12px; letter-spacing: 0.5px;
     }
     .title-bar .spacer { width: 55px; }
@@ -77,10 +90,11 @@
       min-height: 480px;
       max-height: 75vh;
       overflow-y: auto;
+      position: relative;
     }
-    .terminal-body::-webkit-scrollbar { width: 5px; }
+    .terminal-body::-webkit-scrollbar { width: 4px; }
     .terminal-body::-webkit-scrollbar-track { background: transparent; }
-    .terminal-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 10px; }
+    .terminal-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 10px; }
 
     /* Lines */
     .line {
@@ -99,20 +113,20 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* Colors */
-    .p  { color: #7aa2f7; }
-    .g  { color: #9ece6a; }
-    .c  { color: #c0caf5; }
-    .o  { color: #a9b1d6; }
-    .a  { color: #00d9ff; }
-    .h  { color: #f7768e; }
-    .w  { color: #e0af68; }
-    .s  { color: #9ece6a; }
-    .d  { color: #555b70; }
+    /* Color palette — no violet, warm + cool greens/oranges/cyans */
+    .p  { color: #e0965c; }          /* prompt user — warm orange */
+    .g  { color: #3ddc84; }          /* prompt path — green */
+    .c  { color: #d4d8e0; }          /* typed command */
+    .o  { color: #9ca3b4; }          /* output text */
+    .a  { color: #00e5a0; }          /* accent — emerald green */
+    .h  { color: #ff6b6b; }          /* error/highlight — red */
+    .w  { color: #ffb347; }          /* warning — amber */
+    .s  { color: #3ddc84; }          /* success — green */
+    .d  { color: #404759; }          /* dim */
     .b  { font-weight: 600; }
-    .hd { color: #00d9ff; font-weight: 600; }
-    .ln { color: #7aa2f7; text-decoration: none; border-bottom: 1px dotted rgba(122,162,247,0.3); transition: all 0.2s; }
-    .ln:hover { color: #00d9ff; border-bottom-color: #00d9ff; }
+    .hd { color: #00e5a0; font-weight: 600; }
+    .ln { color: #5bc0be; text-decoration: none; border-bottom: 1px dotted rgba(91,192,190,0.3); transition: all 0.2s; }
+    .ln:hover { color: #00e5a0; border-bottom-color: #00e5a0; }
 
     /* Input */
     .input-line {
@@ -128,24 +142,51 @@
       background: none;
       border: none;
       outline: none;
-      color: #c0caf5;
+      color: #d4d8e0;
       font-family: 'JetBrains Mono', monospace;
       font-size: 13.5px;
-      caret-color: #00d9ff;
+      caret-color: #00e5a0;
       padding: 0;
       margin: 0;
     }
 
+    /* Fire spark particles on keystrokes */
+    .spark {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      border-radius: 50%;
+      animation: sparkFade 0.6s ease-out forwards;
+    }
+    @keyframes sparkFade {
+      0% {
+        opacity: 1;
+        transform: translate(0, 0) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(var(--dx), var(--dy)) scale(0);
+      }
+    }
+
+    /* Glow trail on input when typing */
+    .input-line.typing {
+      background: linear-gradient(90deg, rgba(255, 100, 50, 0.04) 0%, transparent 60%);
+      border-radius: 4px;
+    }
+
     /* Mobile */
     @media (max-width: 640px) {
-      body { padding: 12px; }
-      .terminal-body { padding: 16px; max-height: 80vh; }
+      body { padding: 10px; }
+      .terminal-body { padding: 16px; max-height: 82vh; }
       .line, .input-line, .input-line input { font-size: 12px; }
       .input-line input { font-size: 16px; }
+      .terminal-window { border-radius: 10px; }
     }
   </style>
 </head>
 <body>
+  <canvas id="particles"></canvas>
   <div class="terminal-window">
     <div class="title-bar">
       <div class="dots">
@@ -160,27 +201,94 @@
   </div>
 
 <script>
+// ═══════════════════════════════════════
+// BACKGROUND PARTICLES
+// ═══════════════════════════════════════
+const canvas = document.getElementById('particles');
+const ctx = canvas.getContext('2d');
+let dots = [];
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+for (let i = 0; i < 40; i++) {
+  dots.push({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    r: Math.random() * 1.5 + 0.5,
+    dx: (Math.random() - 0.5) * 0.3,
+    dy: (Math.random() - 0.5) * 0.3,
+    o: Math.random() * 0.15 + 0.03
+  });
+}
+
+function drawParticles() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  dots.forEach(d => {
+    ctx.beginPath();
+    ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(0, 229, 160, ${d.o})`;
+    ctx.fill();
+    d.x += d.dx;
+    d.y += d.dy;
+    if (d.x < 0 || d.x > canvas.width) d.dx *= -1;
+    if (d.y < 0 || d.y > canvas.height) d.dy *= -1;
+  });
+  requestAnimationFrame(drawParticles);
+}
+drawParticles();
+
+// ═══════════════════════════════════════
+// FIRE SPARKS ON KEYSTROKES
+// ═══════════════════════════════════════
+const SPARK_COLORS = ['#ff6b3a', '#ff9a44', '#ffcc33', '#00e5a0', '#ff5533', '#ffdd57'];
+
+function spawnSparks(x, y) {
+  const count = 4 + Math.floor(Math.random() * 4);
+  for (let i = 0; i < count; i++) {
+    const spark = document.createElement('div');
+    spark.className = 'spark';
+    const size = Math.random() * 5 + 2;
+    const angle = Math.random() * Math.PI * 2;
+    const dist = Math.random() * 30 + 15;
+    const dx = Math.cos(angle) * dist;
+    const dy = Math.sin(angle) * dist - 15; // bias upward
+    const color = SPARK_COLORS[Math.floor(Math.random() * SPARK_COLORS.length)];
+
+    spark.style.cssText = `
+      left: ${x}px; top: ${y}px;
+      width: ${size}px; height: ${size}px;
+      background: ${color};
+      box-shadow: 0 0 ${size + 2}px ${color};
+      --dx: ${dx}px; --dy: ${dy}px;
+    `;
+    document.body.appendChild(spark);
+    setTimeout(() => spark.remove(), 600);
+  }
+}
+
+// ═══════════════════════════════════════
+// TERMINAL ENGINE
+// ═══════════════════════════════════════
 const T = document.getElementById('t');
 const history = [];
 let inputEl = null;
 
-// ── Prompt ──
 function pr() {
   return '<span class="p">akhilesh</span><span class="d">@</span><span class="g">macbook</span> <span class="d">~ %</span> ';
 }
 
-// ── Escape HTML ──
 function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
-
-// ── Scroll to bottom ──
 function scroll() { T.scrollTop = T.scrollHeight; }
 
-// ── Add a single line (no animation) ──
 function addLine(html, anim) {
   const div = document.createElement('div');
   div.className = anim ? 'line animated' : 'line';
   div.innerHTML = html || '&nbsp;';
-  // Always insert BEFORE the input line if it exists
   if (inputEl && inputEl.parentNode === T) {
     T.insertBefore(div, inputEl);
   } else {
@@ -189,14 +297,10 @@ function addLine(html, anim) {
   scroll();
 }
 
-// ── Add lines with typewriter delay, then callback ──
 function addLines(lines, cb) {
   let i = 0;
   function next() {
-    if (i >= lines.length) {
-      if (cb) cb();
-      return;
-    }
+    if (i >= lines.length) { if (cb) cb(); return; }
     addLine(lines[i], true);
     i++;
     setTimeout(next, 25);
@@ -204,12 +308,10 @@ function addLines(lines, cb) {
   next();
 }
 
-// ── Add command echo (no animation) ──
 function addCmd(text) {
   addLine(pr() + '<span class="c">' + esc(text) + '</span>', false);
 }
 
-// ── Create input ──
 function makeInput() {
   const wrap = document.createElement('div');
   wrap.className = 'input-line';
@@ -222,22 +324,31 @@ function makeInput() {
   inp.setAttribute('aria-label', 'Terminal input');
 
   let hi = -1;
+  let typingTimer;
+
+  // Fire sparks on every keystroke
+  inp.addEventListener('input', () => {
+    const rect = inp.getBoundingClientRect();
+    // Cursor position approximation
+    const charW = 8.1;
+    const cx = rect.left + Math.min(inp.value.length, 60) * charW;
+    const cy = rect.top + rect.height / 2;
+    spawnSparks(cx, cy);
+
+    wrap.classList.add('typing');
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(() => wrap.classList.remove('typing'), 150);
+  });
 
   inp.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       const raw = inp.value.trim();
       const cmd = raw.split(/\s+/)[0].toLowerCase();
-      // Remove the input line
       wrap.remove();
       inputEl = null;
-      // Echo command
       addCmd(raw || '');
 
-      if (!cmd) {
-        makeInput();
-        return;
-      }
-
+      if (!cmd) { makeInput(); return; }
       if (cmd !== 'clear') history.push(raw);
 
       if (cmd === 'clear') {
@@ -246,15 +357,13 @@ function makeInput() {
       } else if (GREET.includes(cmd)) {
         run(greet());
       } else if (CMD[cmd]) {
-        const r = CMD[cmd]();
-        run(r);
+        run(CMD[cmd]());
       } else {
         addLine('<span class="h">  zsh: command not found: ' + esc(cmd) + '</span>', false);
         addLine('  <span class="d">Type</span> <span class="a">help</span> <span class="d">to see available commands.</span>', false);
         addLine('', false);
         makeInput();
       }
-
       hi = -1;
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
@@ -299,12 +408,10 @@ function makeInput() {
   scroll();
 }
 
-// ── Run: animate lines then show input ──
 function run(lines) {
   addLines(lines, () => { makeInput(); });
 }
 
-// ── Click to focus ──
 document.addEventListener('click', () => {
   const inp = T.querySelector('.input-line input');
   if (inp) inp.focus();
