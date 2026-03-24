@@ -4,550 +4,557 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Akhilesh — Interactive Terminal</title>
-  <meta name="description" content="Interactive terminal portfolio of Akhilesh Singh Bhadauriya — SDE at Nammayatri. Type commands to explore!" />
+  <meta name="description" content="Interactive terminal portfolio of Akhilesh Singh Bhadauriya — SDE at Nammayatri." />
   <meta property="og:title" content="Akhilesh's Interactive Terminal" />
-  <meta property="og:description" content="Explore my portfolio through an interactive macOS-style terminal. Type 'help' to get started!" />
+  <meta property="og:description" content="Explore my portfolio through an interactive macOS-style terminal. Type help to get started!" />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://enigma-commits.github.io/enigma-commits/" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Akhilesh's Interactive Terminal" />
-  <meta name="twitter:description" content="Explore my portfolio through an interactive terminal." />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💻</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      background: #0d1117;
+      background: #0a0e14;
+      background-image:
+        radial-gradient(ellipse at 20% 50%, rgba(0, 217, 255, 0.03) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 50%, rgba(122, 162, 247, 0.03) 0%, transparent 60%);
       display: flex;
       align-items: center;
       justify-content: center;
       min-height: 100vh;
-      font-family: 'Fira Code', monospace;
-      padding: 20px;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 24px;
     }
 
     .terminal-window {
       width: 100%;
-      max-width: 780px;
-      background: linear-gradient(135deg, #1a1b26 0%, #16161e 100%);
-      border-radius: 12px;
-      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6), 0 0 60px rgba(0, 217, 255, 0.08);
+      max-width: 820px;
+      background: #11141b;
+      border-radius: 14px;
+      box-shadow:
+        0 0 0 1px rgba(0, 217, 255, 0.08),
+        0 20px 60px rgba(0, 0, 0, 0.5),
+        0 0 100px rgba(0, 217, 255, 0.04);
       overflow: hidden;
-      border: 1px solid #2a2b3d;
-      transition: box-shadow 0.4s ease, transform 0.4s ease;
+      transition: box-shadow 0.5s ease;
     }
     .terminal-window:hover {
-      box-shadow: 0 30px 90px rgba(0, 0, 0, 0.7), 0 0 80px rgba(0, 217, 255, 0.15);
-      transform: translateY(-2px);
+      box-shadow:
+        0 0 0 1px rgba(0, 217, 255, 0.12),
+        0 25px 80px rgba(0, 0, 0, 0.6),
+        0 0 120px rgba(0, 217, 255, 0.07);
     }
 
-    /* macOS title bar */
+    /* Title bar */
     .title-bar {
-      background: linear-gradient(to right, #16161e, #1a1b26);
-      padding: 12px 16px;
+      background: #0d1017;
+      padding: 14px 18px;
       display: flex;
       align-items: center;
       gap: 8px;
-      border-bottom: 1px solid #2a2b3d;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
       user-select: none;
     }
-    .title-bar .dot {
-      width: 12px; height: 12px; border-radius: 50%;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    .dots { display: flex; gap: 8px; }
+    .dot {
+      width: 13px; height: 13px; border-radius: 50%;
+      transition: opacity 0.2s;
     }
-    .title-bar .dot:hover { transform: scale(1.3); }
-    .dot.red    { background: #ff5f57; box-shadow: 0 0 6px rgba(255,95,87,0.4); }
-    .dot.yellow { background: #febc2e; box-shadow: 0 0 6px rgba(254,188,46,0.4); }
-    .dot.green  { background: #28c840; box-shadow: 0 0 6px rgba(40,200,64,0.4); }
+    .dot:hover { opacity: 0.7; }
+    .dot.r { background: #ff5f57; }
+    .dot.y { background: #febc2e; }
+    .dot.g { background: #28c840; }
     .title-bar .title {
-      flex: 1; text-align: center; color: #565f89;
-      font-size: 13px; margin-right: 52px;
+      flex: 1; text-align: center; color: #4a5068;
+      font-size: 12px; letter-spacing: 0.5px;
     }
+    .title-bar .spacer { width: 55px; }
 
-    /* Terminal body */
+    /* Body */
     .terminal-body {
-      padding: 20px;
-      height: 520px;
+      padding: 22px;
+      min-height: 480px;
+      max-height: 75vh;
       overflow-y: auto;
-      scroll-behavior: smooth;
     }
-    .terminal-body::-webkit-scrollbar { width: 6px; }
+    .terminal-body::-webkit-scrollbar { width: 5px; }
     .terminal-body::-webkit-scrollbar-track { background: transparent; }
-    .terminal-body::-webkit-scrollbar-thumb {
-      background: linear-gradient(to bottom, #00d9ff33, #7aa2f733);
-      border-radius: 3px;
-    }
-    .terminal-body::-webkit-scrollbar-thumb:hover { background: #00d9ff55; }
+    .terminal-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 10px; }
 
-    /* Output lines */
+    /* Lines */
     .line {
-      margin-bottom: 2px; line-height: 1.6; font-size: 14px;
-      opacity: 0; animation: fadeInLine 0.25s ease forwards;
+      margin-bottom: 1px;
+      line-height: 1.7;
+      font-size: 13.5px;
+      white-space: pre-wrap;
+      word-break: break-word;
     }
-    .line.no-anim { opacity: 1; animation: none; }
-    @keyframes fadeInLine {
-      from { opacity: 0; transform: translateY(4px); }
+    .line.animated {
+      opacity: 0;
+      animation: lineIn 0.2s ease forwards;
+    }
+    @keyframes lineIn {
+      from { opacity: 0; transform: translateY(3px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    .line .prompt { color: #7aa2f7; }
-    .line .path   { color: #9ece6a; }
-    .line .cmd    { color: #c0caf5; }
-    .line .output { color: #a9b1d6; }
-    .line .accent { color: #00d9ff; text-shadow: 0 0 10px rgba(0,217,255,0.15); }
-    .line .highlight { color: #f7768e; }
-    .line .warning { color: #e0af68; }
-    .line .success { color: #9ece6a; }
-    .line .dim { color: #6a7094; }
-    .line .bold { font-weight: 600; }
-    .line .header { color: #00d9ff; font-weight: 600; text-shadow: 0 0 15px rgba(0,217,255,0.2); }
+    /* Colors */
+    .p  { color: #7aa2f7; }
+    .g  { color: #9ece6a; }
+    .c  { color: #c0caf5; }
+    .o  { color: #a9b1d6; }
+    .a  { color: #00d9ff; }
+    .h  { color: #f7768e; }
+    .w  { color: #e0af68; }
+    .s  { color: #9ece6a; }
+    .d  { color: #555b70; }
+    .b  { font-weight: 600; }
+    .hd { color: #00d9ff; font-weight: 600; }
+    .ln { color: #7aa2f7; text-decoration: none; border-bottom: 1px dotted rgba(122,162,247,0.3); transition: all 0.2s; }
+    .ln:hover { color: #00d9ff; border-bottom-color: #00d9ff; }
 
-    /* Input line */
+    /* Input */
     .input-line {
-      display: flex; align-items: center; font-size: 14px; margin-top: 4px;
-      padding: 2px 0; border-radius: 4px;
-      transition: background 0.2s ease;
+      display: flex;
+      align-items: center;
+      font-size: 13.5px;
+      margin-top: 2px;
+      min-height: 24px;
     }
-    .input-line:focus-within {
-      background: rgba(0, 217, 255, 0.03);
-    }
-    .input-line .prompt { color: #7aa2f7; white-space: pre; }
-    .input-line .path   { color: #9ece6a; white-space: pre; }
+    .input-line .p, .input-line .g { white-space: pre; }
     .input-line input {
-      flex: 1; background: none; border: none; outline: none;
-      color: #c0caf5; font-family: 'Fira Code', monospace;
-      font-size: 14px; caret-color: #00d9ff;
-    }
-
-    /* Links */
-    .terminal-body a {
-      color: #7aa2f7; text-decoration: none;
-      border-bottom: 1px solid transparent;
-      transition: all 0.2s ease;
-    }
-    .terminal-body a:hover {
-      color: #00d9ff; border-bottom-color: #00d9ff;
-      text-shadow: 0 0 8px rgba(0,217,255,0.3);
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      color: #c0caf5;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13.5px;
+      caret-color: #00d9ff;
+      padding: 0;
+      margin: 0;
     }
 
     /* Mobile */
-    @media (max-width: 600px) {
-      .terminal-body { height: 75vh; padding: 14px; }
+    @media (max-width: 640px) {
+      body { padding: 12px; }
+      .terminal-body { padding: 16px; max-height: 80vh; }
       .line, .input-line, .input-line input { font-size: 12px; }
-      .input-line input { font-size: 16px; } /* prevent iOS zoom */
-    }
-    @media (max-width: 400px) {
-      .line, .input-line { font-size: 11px; }
-      .terminal-window { border-radius: 8px; }
+      .input-line input { font-size: 16px; }
     }
   </style>
 </head>
 <body>
   <div class="terminal-window">
     <div class="title-bar">
-      <span class="dot red"></span>
-      <span class="dot yellow"></span>
-      <span class="dot green"></span>
+      <div class="dots">
+        <span class="dot r"></span>
+        <span class="dot y"></span>
+        <span class="dot g"></span>
+      </div>
       <span class="title">akhilesh@macbook — zsh</span>
+      <span class="spacer"></span>
     </div>
-    <div class="terminal-body" id="terminal" role="log" aria-label="Interactive terminal"></div>
+    <div class="terminal-body" id="t" role="log" aria-label="Interactive terminal"></div>
   </div>
 
 <script>
-const terminal = document.getElementById('terminal');
-const commandHistory = [];
-let isAnimating = false;
+const T = document.getElementById('t');
+const history = [];
+let inputEl = null;
 
-const COMMANDS = {
+// ── Prompt ──
+function pr() {
+  return '<span class="p">akhilesh</span><span class="d">@</span><span class="g">macbook</span> <span class="d">~ %</span> ';
+}
+
+// ── Escape HTML ──
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+// ── Scroll to bottom ──
+function scroll() { T.scrollTop = T.scrollHeight; }
+
+// ── Add a single line (no animation) ──
+function addLine(html, anim) {
+  const div = document.createElement('div');
+  div.className = anim ? 'line animated' : 'line';
+  div.innerHTML = html || '&nbsp;';
+  // Always insert BEFORE the input line if it exists
+  if (inputEl && inputEl.parentNode === T) {
+    T.insertBefore(div, inputEl);
+  } else {
+    T.appendChild(div);
+  }
+  scroll();
+}
+
+// ── Add lines with typewriter delay, then callback ──
+function addLines(lines, cb) {
+  let i = 0;
+  function next() {
+    if (i >= lines.length) {
+      if (cb) cb();
+      return;
+    }
+    addLine(lines[i], true);
+    i++;
+    setTimeout(next, 25);
+  }
+  next();
+}
+
+// ── Add command echo (no animation) ──
+function addCmd(text) {
+  addLine(pr() + '<span class="c">' + esc(text) + '</span>', false);
+}
+
+// ── Create input ──
+function makeInput() {
+  const wrap = document.createElement('div');
+  wrap.className = 'input-line';
+  wrap.innerHTML = pr();
+
+  const inp = document.createElement('input');
+  inp.type = 'text';
+  inp.spellcheck = false;
+  inp.autocomplete = 'off';
+  inp.setAttribute('aria-label', 'Terminal input');
+
+  let hi = -1;
+
+  inp.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      const raw = inp.value.trim();
+      const cmd = raw.split(/\s+/)[0].toLowerCase();
+      // Remove the input line
+      wrap.remove();
+      inputEl = null;
+      // Echo command
+      addCmd(raw || '');
+
+      if (!cmd) {
+        makeInput();
+        return;
+      }
+
+      if (cmd !== 'clear') history.push(raw);
+
+      if (cmd === 'clear') {
+        T.innerHTML = '';
+        makeInput();
+      } else if (GREET.includes(cmd)) {
+        run(greet());
+      } else if (CMD[cmd]) {
+        const r = CMD[cmd]();
+        run(r);
+      } else {
+        addLine('<span class="h">  zsh: command not found: ' + esc(cmd) + '</span>', false);
+        addLine('  <span class="d">Type</span> <span class="a">help</span> <span class="d">to see available commands.</span>', false);
+        addLine('', false);
+        makeInput();
+      }
+
+      hi = -1;
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (history.length) {
+        if (hi === -1) hi = history.length;
+        hi = Math.max(0, hi - 1);
+        inp.value = history[hi];
+      }
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (hi !== -1) {
+        hi = Math.min(history.length, hi + 1);
+        inp.value = hi === history.length ? '' : history[hi];
+      }
+    } else if (e.key === 'Tab') {
+      e.preventDefault();
+      const p = inp.value.trim().split(/\s+/)[0].toLowerCase();
+      if (p) {
+        const all = Object.keys(CMD).concat(['clear']);
+        const m = all.filter(c => c.startsWith(p));
+        if (m.length === 1) inp.value = m[0];
+      }
+    } else if (e.key === 'c' && e.ctrlKey) {
+      e.preventDefault();
+      wrap.remove();
+      inputEl = null;
+      addCmd(inp.value + '^C');
+      makeInput();
+    } else if (e.key === 'l' && e.ctrlKey) {
+      e.preventDefault();
+      T.innerHTML = '';
+      wrap.remove();
+      inputEl = null;
+      makeInput();
+    }
+  });
+
+  wrap.appendChild(inp);
+  T.appendChild(wrap);
+  inputEl = wrap;
+  inp.focus();
+  scroll();
+}
+
+// ── Run: animate lines then show input ──
+function run(lines) {
+  addLines(lines, () => { makeInput(); });
+}
+
+// ── Click to focus ──
+document.addEventListener('click', () => {
+  const inp = T.querySelector('.input-line input');
+  if (inp) inp.focus();
+});
+
+// ═══════════════════════════════════════
+// COMMANDS
+// ═══════════════════════════════════════
+
+const CMD = {
   help: () => [
     '',
-    '<span class="header">  Available Commands</span>',
-    '<span class="dim">  ─────────────────────────────────────────────</span>',
-    '  <span class="accent">whoami</span>          <span class="dim">→</span>  <span class="output">Who am I?</span>',
-    '  <span class="accent">experience</span>      <span class="dim">→</span>  <span class="output">My career journey</span>',
-    '  <span class="accent">skills</span>          <span class="dim">→</span>  <span class="output">Tech stack & tools</span>',
-    '  <span class="accent">projects</span>        <span class="dim">→</span>  <span class="output">Featured projects</span>',
-    '  <span class="accent">achievements</span>    <span class="dim">→</span>  <span class="output">Competitive programming</span>',
-    '  <span class="accent">contributions</span>   <span class="dim">→</span>  <span class="output">Recent open-source work</span>',
-    '  <span class="accent">contact</span>         <span class="dim">→</span>  <span class="output">How to reach me</span>',
-    '  <span class="accent">hi / hello</span>      <span class="dim">→</span>  <span class="output">Say hello!</span>',
-    '  <span class="accent">clear</span>           <span class="dim">→</span>  <span class="output">Clear the terminal</span>',
-    '<span class="dim">  ─────────────────────────────────────────────</span>',
-    '  <span class="dim">Tip: Try</span> <span class="accent">sudo</span><span class="dim">,</span> <span class="accent">matrix</span><span class="dim">, or</span> <span class="accent">hack</span> <span class="dim">for surprises ;)</span>',
+    '<span class="hd">  Available Commands</span>',
+    '<span class="d">  ───────────────────────────────────────────────</span>',
+    '  <span class="a">whoami</span>          <span class="d">→</span>  <span class="o">Who am I?</span>',
+    '  <span class="a">experience</span>      <span class="d">→</span>  <span class="o">My career journey</span>',
+    '  <span class="a">skills</span>          <span class="d">→</span>  <span class="o">Tech stack & tools</span>',
+    '  <span class="a">projects</span>        <span class="d">→</span>  <span class="o">Featured projects</span>',
+    '  <span class="a">achievements</span>    <span class="d">→</span>  <span class="o">Competitive programming</span>',
+    '  <span class="a">contributions</span>   <span class="d">→</span>  <span class="o">Recent open-source work</span>',
+    '  <span class="a">contact</span>         <span class="d">→</span>  <span class="o">How to reach me</span>',
+    '  <span class="a">hi / hello</span>      <span class="d">→</span>  <span class="o">Say hello!</span>',
+    '  <span class="a">clear</span>           <span class="d">→</span>  <span class="o">Clear the terminal</span>',
+    '<span class="d">  ───────────────────────────────────────────────</span>',
+    '  <span class="d">Secrets:</span> <span class="a">sudo</span> <span class="d">|</span> <span class="a">matrix</span> <span class="d">|</span> <span class="a">hack</span> <span class="d">|</span> <span class="a">moo</span> <span class="d">|</span> <span class="a">secret</span>',
     '',
   ],
 
   whoami: () => [
     '',
-    '<span class="header">  ╔══════════════════════════════════════════════════════════╗</span>',
-    '<span class="header">  ║</span>                                                          <span class="header">║</span>',
-    '<span class="header">  ║</span>   <span class="accent bold">Name</span>       <span class="dim">:</span> <span class="output">Akhilesh Singh Bhadauriya</span>                  <span class="header">║</span>',
-    '<span class="header">  ║</span>   <span class="accent bold">Role</span>       <span class="dim">:</span> <span class="output">SDE @ Nammayatri</span>                           <span class="header">║</span>',
-    '<span class="header">  ║</span>   <span class="accent bold">Location</span>   <span class="dim">:</span> <span class="output">India</span>                                      <span class="header">║</span>',
-    '<span class="header">  ║</span>   <span class="accent bold">Focus</span>      <span class="dim">:</span> <span class="output">Distributed Systems & Performance</span>           <span class="header">║</span>',
-    '<span class="header">  ║</span>                                                          <span class="header">║</span>',
-    '<span class="header">  ╚══════════════════════════════════════════════════════════╝</span>',
+    '  <span class="hd">┌─────────────────────────────────────────────────────┐</span>',
+    '  <span class="hd">│</span>                                                     <span class="hd">│</span>',
+    '  <span class="hd">│</span>   <span class="a b">Name</span>      <span class="d">:</span>  <span class="o">Akhilesh Singh Bhadauriya</span>            <span class="hd">│</span>',
+    '  <span class="hd">│</span>   <span class="a b">Role</span>      <span class="d">:</span>  <span class="o">SDE @ Nammayatri</span>                     <span class="hd">│</span>',
+    '  <span class="hd">│</span>   <span class="a b">Location</span>  <span class="d">:</span>  <span class="o">India</span>                                <span class="hd">│</span>',
+    '  <span class="hd">│</span>   <span class="a b">Focus</span>     <span class="d">:</span>  <span class="o">Distributed Systems & Performance</span>     <span class="hd">│</span>',
+    '  <span class="hd">│</span>                                                     <span class="hd">│</span>',
+    '  <span class="hd">└─────────────────────────────────────────────────────┘</span>',
     '',
-    '  <span class="success">▸</span> Building <span class="output">multimodal transport systems</span>',
-    '  <span class="success">▸</span> Scalable infra handling <span class="accent">350K+ ops/hour</span>',
-    '  <span class="success">▸</span> Solving problems with elegant code',
+    '  <span class="s">▸</span> Building <span class="o">multimodal transport systems</span>',
+    '  <span class="s">▸</span> Scalable infra handling <span class="a">350K+ ops/hour</span>',
+    '  <span class="s">▸</span> Solving problems with elegant code',
     '',
-    '  <span class="dim">motto:</span> <span class="warning">"Ship fast. Scale faster."</span>',
+    '  <span class="d">motto:</span> <span class="w">"Ship fast. Scale faster."</span>',
     '',
   ],
 
   experience: () => [
     '',
-    '<span class="header">  Career Timeline</span>',
-    '<span class="dim">  ──────────────────────────────────────────────────</span>',
+    '  <span class="hd">Career Timeline</span>',
+    '  <span class="d">──────────────────────────────────────────────────</span>',
     '',
-    '  <span class="accent bold">2023 — Present</span>  <span class="dim">│</span>  <span class="output bold">SDE @ Nammayatri</span>',
-    '  <span class="dim">                 │</span>  <span class="output">Building India\'s largest open-mobility</span>',
-    '  <span class="dim">                 │</span>  <span class="output">platform. Distributed systems, Haskell,</span>',
-    '  <span class="dim">                 │</span>  <span class="output">Rust, real-time transit at massive scale.</span>',
-    '  <span class="dim">                 │</span>',
-    '  <span class="dim">                 │</span>  <span class="success">▸</span> GTFS in-memory server <span class="dim">(Rust)</span>',
-    '  <span class="dim">                 │</span>  <span class="success">▸</span> Driver pooling system <span class="dim">(40% efficiency gain)</span>',
-    '  <span class="dim">                 │</span>  <span class="success">▸</span> Event drainer <span class="dim">(350K+ ops/hour)</span>',
-    '  <span class="dim">                 │</span>  <span class="success">▸</span> Delhi-NCR multimodal integration',
+    '  <span class="a b">2023 — Present</span>  <span class="d">│</span>  <span class="o b">SDE @ Nammayatri</span>',
+    '  <span class="d">                │</span>  <span class="o">Building India\'s largest open-mobility</span>',
+    '  <span class="d">                │</span>  <span class="o">platform. Distributed systems, Haskell,</span>',
+    '  <span class="d">                │</span>  <span class="o">Rust, real-time transit at massive scale.</span>',
+    '  <span class="d">                │</span>',
+    '  <span class="d">                │</span>  <span class="s">▸</span> GTFS in-memory server <span class="d">(Rust)</span>',
+    '  <span class="d">                │</span>  <span class="s">▸</span> Driver pooling system <span class="d">(40% efficiency gain)</span>',
+    '  <span class="d">                │</span>  <span class="s">▸</span> Event drainer <span class="d">(350K+ ops/hour)</span>',
+    '  <span class="d">                │</span>  <span class="s">▸</span> Delhi-NCR multimodal integration',
     '',
-    '  <span class="warning bold">Competitive Era</span>  <span class="dim">│</span>  <span class="output bold">CP & Problem Solving</span>',
-    '  <span class="dim">                 │</span>  <span class="output">CodeForces Expert, CodeChef 5-Star,</span>',
-    '  <span class="dim">                 │</span>  <span class="output">ICPC Regionalist, Meta Hackercup R2</span>',
-    '',
-    '  <span class="success">✓ Timeline loaded.</span>',
+    '  <span class="w b">Competitive Era</span> <span class="d">│</span>  <span class="o b">CP & Problem Solving</span>',
+    '  <span class="d">                │</span>  <span class="o">CodeForces Expert, CodeChef 5-Star,</span>',
+    '  <span class="d">                │</span>  <span class="o">ICPC Regionalist, Meta Hackercup R2</span>',
     '',
   ],
 
   skills: () => [
     '',
-    '<span class="header">  Languages & Frameworks</span>',
-    '<span class="dim">  ──────────────────────</span>',
-    '  <span class="accent">▸</span> Haskell      <span class="dim">│</span> <span class="accent">▸</span> C++          <span class="dim">│</span> <span class="accent">▸</span> Python',
-    '  <span class="accent">▸</span> JavaScript   <span class="dim">│</span> <span class="accent">▸</span> Java         <span class="dim">│</span> <span class="accent">▸</span> Rust',
-    '  <span class="accent">▸</span> React        <span class="dim">│</span> <span class="accent">▸</span> Node.js      <span class="dim">│</span> <span class="accent">▸</span> Express.js',
+    '  <span class="hd">Languages & Frameworks</span>',
+    '  <span class="d">──────────────────────</span>',
+    '  <span class="a">▸</span> Haskell      <span class="d">│</span> <span class="a">▸</span> C++          <span class="d">│</span> <span class="a">▸</span> Python',
+    '  <span class="a">▸</span> JavaScript   <span class="d">│</span> <span class="a">▸</span> Java         <span class="d">│</span> <span class="a">▸</span> Rust',
+    '  <span class="a">▸</span> React        <span class="d">│</span> <span class="a">▸</span> Node.js      <span class="d">│</span> <span class="a">▸</span> Express.js',
     '',
-    '<span class="header">  Infrastructure & Tools</span>',
-    '<span class="dim">  ──────────────────────</span>',
-    '  <span class="success">▸</span> Redis        <span class="dim">│</span> <span class="success">▸</span> MongoDB      <span class="dim">│</span> <span class="success">▸</span> PostgreSQL',
-    '  <span class="success">▸</span> AWS          <span class="dim">│</span> <span class="success">▸</span> Docker       <span class="dim">│</span> <span class="success">▸</span> Kubernetes',
-    '  <span class="success">▸</span> Prometheus   <span class="dim">│</span> <span class="success">▸</span> Grafana      <span class="dim">│</span> <span class="success">▸</span> Git',
+    '  <span class="hd">Infrastructure & Tools</span>',
+    '  <span class="d">──────────────────────</span>',
+    '  <span class="s">▸</span> Redis        <span class="d">│</span> <span class="s">▸</span> MongoDB      <span class="d">│</span> <span class="s">▸</span> PostgreSQL',
+    '  <span class="s">▸</span> AWS          <span class="d">│</span> <span class="s">▸</span> Docker       <span class="d">│</span> <span class="s">▸</span> Kubernetes',
+    '  <span class="s">▸</span> Prometheus   <span class="d">│</span> <span class="s">▸</span> Grafana      <span class="d">│</span> <span class="s">▸</span> Git',
     '',
-    '  <span class="success">✓ All packages loaded.</span>',
+    '  <span class="s">✓ All packages loaded.</span>',
     '',
   ],
 
   projects: () => [
     '',
-    '  <span class="dim">Loading repositories...</span>',
+    '  <span class="d">Loading repositories...</span>',
     '',
-    '  <span class="header">┌──────────────────────────────────────────────────────┐</span>',
-    '  <span class="header">│</span>  <span class="accent bold">GTFS In-Memory Server</span> <span class="dim">(Rust)</span>                        <span class="header">│</span>',
-    '  <span class="header">│</span>  <span class="dim">────────────────────────────────────────────────</span>  <span class="header">│</span>',
-    '  <span class="header">│</span>  <span class="output">High-performance GTFS service replacing slow</span>      <span class="header">│</span>',
-    '  <span class="header">│</span>  <span class="output">GraphQL with O(1) in-memory queries for</span>           <span class="header">│</span>',
-    '  <span class="header">│</span>  <span class="output">real-time transit data.</span>                             <span class="header">│</span>',
-    '  <span class="header">│</span>                                                      <span class="header">│</span>',
-    '  <span class="header">│</span>  <span class="dim">🔗</span> <a href="https://github.com/nammayatri/gtfs-inmemory-server-rust" target="_blank">github.com/nammayatri/gtfs-inmemory-server-rust</a> <span class="header">│</span>',
-    '  <span class="header">└──────────────────────────────────────────────────────┘</span>',
+    '  <span class="hd">┌──────────────────────────────────────────────────────┐</span>',
+    '  <span class="hd">│</span>  <span class="a b">GTFS In-Memory Server</span> <span class="d">(Rust)</span>                        <span class="hd">│</span>',
+    '  <span class="hd">│</span>  <span class="d">────────────────────────────────────────────────</span>  <span class="hd">│</span>',
+    '  <span class="hd">│</span>  <span class="o">High-performance GTFS service replacing slow</span>      <span class="hd">│</span>',
+    '  <span class="hd">│</span>  <span class="o">GraphQL with O(1) in-memory queries for</span>           <span class="hd">│</span>',
+    '  <span class="hd">│</span>  <span class="o">real-time transit data.</span>                             <span class="hd">│</span>',
+    '  <span class="hd">│</span>                                                      <span class="hd">│</span>',
+    '  <span class="hd">│</span>  <span class="d">🔗</span> <a class="ln" href="https://github.com/nammayatri/gtfs-inmemory-server-rust" target="_blank">github.com/nammayatri/gtfs-inmemory-server-rust</a> <span class="hd">│</span>',
+    '  <span class="hd">└──────────────────────────────────────────────────────┘</span>',
     '',
-    '  <span class="header">┌──────────────────────────────────────────────────────┐</span>',
-    '  <span class="header">│</span>  <span class="accent bold">Driver Pooling System</span>                              <span class="header">│</span>',
-    '  <span class="header">│</span>  <span class="dim">────────────────────────────────────────────────</span>  <span class="header">│</span>',
-    '  <span class="header">│</span>  <span class="output">Intelligent driver allocation using JSON Logic.</span>   <span class="header">│</span>',
-    '  <span class="header">│</span>  <span class="output">Improved efficiency by 40%, reduced pickup</span>       <span class="header">│</span>',
-    '  <span class="header">│</span>  <span class="output">times by 30%.</span>                                      <span class="header">│</span>',
-    '  <span class="header">│</span>                                                      <span class="header">│</span>',
-    '  <span class="header">│</span>  <span class="dim">🔗</span> <a href="https://github.com/nammayatri/nammayatri" target="_blank">github.com/nammayatri/nammayatri</a>               <span class="header">│</span>',
-    '  <span class="header">└──────────────────────────────────────────────────────┘</span>',
+    '  <span class="hd">┌──────────────────────────────────────────────────────┐</span>',
+    '  <span class="hd">│</span>  <span class="a b">Driver Pooling System</span>                              <span class="hd">│</span>',
+    '  <span class="hd">│</span>  <span class="d">────────────────────────────────────────────────</span>  <span class="hd">│</span>',
+    '  <span class="hd">│</span>  <span class="o">Intelligent driver allocation using JSON Logic.</span>   <span class="hd">│</span>',
+    '  <span class="hd">│</span>  <span class="o">Improved efficiency by 40%, reduced pickup</span>       <span class="hd">│</span>',
+    '  <span class="hd">│</span>  <span class="o">times by 30%.</span>                                      <span class="hd">│</span>',
+    '  <span class="hd">│</span>                                                      <span class="hd">│</span>',
+    '  <span class="hd">│</span>  <span class="d">🔗</span> <a class="ln" href="https://github.com/nammayatri/nammayatri" target="_blank">github.com/nammayatri/nammayatri</a>               <span class="hd">│</span>',
+    '  <span class="hd">└──────────────────────────────────────────────────────┘</span>',
     '',
   ],
 
   achievements: () => [
     '',
-    '  <span class="dim">Fetching competitive programming stats...</span>',
+    '  <span class="d">Fetching competitive programming stats...</span>',
     '',
-    '  <span class="header">┌───────────────────┬────────────────────────────────────┐</span>',
-    '  <span class="header">│</span>  <span class="accent bold">Platform</span>         <span class="header">│</span>  <span class="accent bold">Rating / Rank</span>                       <span class="header">│</span>',
-    '  <span class="header">├───────────────────┼────────────────────────────────────┤</span>',
-    '  <span class="header">│</span>  <span class="output">CodeForces</span>       <span class="header">│</span>  <span class="success">Expert</span> <span class="dim">(Max: 1622)</span>                 <span class="header">│</span>',
-    '  <span class="header">│</span>  <span class="output">CodeChef</span>         <span class="header">│</span>  <span class="success">5-Star</span> <span class="dim">(Max: 2147, Global #92)</span>    <span class="header">│</span>',
-    '  <span class="header">│</span>  <span class="output">ICPC</span>             <span class="header">│</span>  <span class="success">Regionalist</span> <span class="dim">(Kanpur #56)</span>          <span class="header">│</span>',
-    '  <span class="header">│</span>  <span class="output">Meta Hackercup</span>   <span class="header">│</span>  <span class="success">Round 2</span> <span class="dim">(Rank 824 / 12,330)</span>     <span class="header">│</span>',
-    '  <span class="header">└───────────────────┴────────────────────────────────────┘</span>',
+    '  <span class="hd">┌───────────────────┬────────────────────────────────────┐</span>',
+    '  <span class="hd">│</span>  <span class="a b">Platform</span>         <span class="hd">│</span>  <span class="a b">Rating / Rank</span>                       <span class="hd">│</span>',
+    '  <span class="hd">├───────────────────┼────────────────────────────────────┤</span>',
+    '  <span class="hd">│</span>  <span class="o">CodeForces</span>       <span class="hd">│</span>  <span class="s">Expert</span> <span class="d">(Max: 1622)</span>                 <span class="hd">│</span>',
+    '  <span class="hd">│</span>  <span class="o">CodeChef</span>         <span class="hd">│</span>  <span class="s">5-Star</span> <span class="d">(Max: 2147, Global #92)</span>    <span class="hd">│</span>',
+    '  <span class="hd">│</span>  <span class="o">ICPC</span>             <span class="hd">│</span>  <span class="s">Regionalist</span> <span class="d">(Kanpur #56)</span>          <span class="hd">│</span>',
+    '  <span class="hd">│</span>  <span class="o">Meta Hackercup</span>   <span class="hd">│</span>  <span class="s">Round 2</span> <span class="d">(Rank 824 / 12,330)</span>     <span class="hd">│</span>',
+    '  <span class="hd">└───────────────────┴────────────────────────────────────┘</span>',
     '',
-    '  <span class="success">✓ All records loaded.</span>',
+    '  <span class="s">✓ All records loaded.</span>',
     '',
   ],
 
   contributions: () => [
     '',
-    '  <span class="dim">Fetching contribution log...</span>',
+    '  <span class="d">Fetching contribution log...</span>',
     '',
-    '  <span class="warning">commit</span>  <span class="dim">a1b2c3d</span>  <span class="accent bold">Delhi-NCR Open Mobility Ecosystem</span>',
-    '  <span class="dim">├──</span> Core contributor to multimodal transport integration',
-    '  <span class="dim">│</span>',
-    '  <span class="warning">commit</span>  <span class="dim">d4e5f6a</span>  <span class="accent bold">High-Performance Systems</span>',
-    '  <span class="dim">├──</span> Redis-based KV framework handling millions of daily requests',
-    '  <span class="dim">│</span>',
-    '  <span class="warning">commit</span>  <span class="dim">b7c8d9e</span>  <span class="accent bold">Event-Driven Architecture</span>',
-    '  <span class="dim">├──</span> Fault-tolerant drainer service processing 350K+ ops/hour',
-    '  <span class="dim">│</span>',
-    '  <span class="warning">commit</span>  <span class="dim">f0a1b2c</span>  <span class="accent bold">Context-Aware Config System</span>',
-    '  <span class="dim">└──</span> In-memory management enabling UI changes & A/B testing',
+    '  <span class="w">commit</span>  <span class="d">a1b2c3d</span>  <span class="a b">Delhi-NCR Open Mobility Ecosystem</span>',
+    '  <span class="d">├──</span> <span class="o">Core contributor to multimodal transport integration</span>',
+    '  <span class="d">│</span>',
+    '  <span class="w">commit</span>  <span class="d">d4e5f6a</span>  <span class="a b">High-Performance Systems</span>',
+    '  <span class="d">├──</span> <span class="o">Redis-based KV framework, millions of daily requests</span>',
+    '  <span class="d">│</span>',
+    '  <span class="w">commit</span>  <span class="d">b7c8d9e</span>  <span class="a b">Event-Driven Architecture</span>',
+    '  <span class="d">├──</span> <span class="o">Fault-tolerant drainer service, 350K+ ops/hour</span>',
+    '  <span class="d">│</span>',
+    '  <span class="w">commit</span>  <span class="d">f0a1b2c</span>  <span class="a b">Context-Aware Config System</span>',
+    '  <span class="d">└──</span> <span class="o">In-memory management, UI changes & A/B testing</span>',
     '',
-    '  <span class="success">✓ 4 contributions displayed.</span>',
+    '  <span class="s">✓ 4 contributions displayed.</span>',
     '',
   ],
 
   contact: () => [
     '',
-    '  <span class="header">┌──────────────────────────────────────────────┐</span>',
-    '  <span class="header">│</span>  <span class="accent bold">Let\'s connect!</span>                                <span class="header">│</span>',
-    '  <span class="header">└──────────────────────────────────────────────┘</span>',
+    '  <span class="hd">┌──────────────────────────────────────────────────┐</span>',
+    '  <span class="hd">│</span>  <span class="a b">Let\'s connect!</span>                                    <span class="hd">│</span>',
+    '  <span class="hd">└──────────────────────────────────────────────────┘</span>',
     '',
-    '  <span class="accent">▸</span> LinkedIn    <span class="dim">→</span>  <a href="https://www.linkedin.com/in/akhilesh-singh-bhadauriya-57750b198/" target="_blank">linkedin.com/in/akhilesh-singh-bhadauriya</a>',
-    '  <span class="accent">▸</span> GitHub      <span class="dim">→</span>  <a href="https://github.com/enigma-commits" target="_blank">github.com/enigma-commits</a>',
-    '  <span class="accent">▸</span> Email       <span class="dim">→</span>  <a href="mailto:akhileshsingh2314@gmail.com">akhileshsingh2314@gmail.com</a>',
-    '  <span class="accent">▸</span> Codeforces  <span class="dim">→</span>  <a href="https://codeforces.com/profile/absolute_looser" target="_blank">codeforces.com/profile/absolute_looser</a>',
+    '  <span class="a">▸</span> LinkedIn    <span class="d">→</span>  <a class="ln" href="https://www.linkedin.com/in/akhilesh-singh-bhadauriya-57750b198/" target="_blank">linkedin.com/in/akhilesh-singh-bhadauriya</a>',
+    '  <span class="a">▸</span> GitHub      <span class="d">→</span>  <a class="ln" href="https://github.com/enigma-commits" target="_blank">github.com/enigma-commits</a>',
+    '  <span class="a">▸</span> Email       <span class="d">→</span>  <a class="ln" href="mailto:akhileshsingh2314@gmail.com">akhileshsingh2314@gmail.com</a>',
+    '  <span class="a">▸</span> Codeforces  <span class="d">→</span>  <a class="ln" href="https://codeforces.com/profile/absolute_looser" target="_blank">codeforces.com/profile/absolute_looser</a>',
     '',
   ],
 
   // Easter eggs
   sudo: () => [
     '',
-    '<span class="warning">  [sudo] password for akhilesh: ********</span>',
-    '<span class="highlight">  Sorry, user akhilesh is not in the sudoers file.</span>',
-    '<span class="highlight">  This incident will be reported.</span>',
+    '<span class="w">  [sudo] password for akhilesh: ********</span>',
+    '<span class="h">  Sorry, user akhilesh is not in the sudoers file.</span>',
+    '<span class="h">  This incident will be reported.</span>',
     '',
-    '<span class="dim">  Just kidding. No root access here!</span>',
+    '<span class="d">  Just kidding. No root access here!</span>',
     '',
   ],
 
   matrix: () => {
-    const chars = 'アイウエオカキクケコサシスセソタチツテト01';
-    const lines = ['', '<span class="dim">  Entering the Matrix...</span>', ''];
-    for (let i = 0; i < 8; i++) {
-      let row = '  <span class="success">';
-      for (let j = 0; j < 48; j++) row += chars[Math.floor(Math.random() * chars.length)];
-      row += '</span>';
-      lines.push(row);
+    const ch = 'アイウエオカキクケコサシスセソ01';
+    const lines = ['', '<span class="d">  Entering the Matrix...</span>', ''];
+    for (let i = 0; i < 6; i++) {
+      let r = '  <span class="s">';
+      for (let j = 0; j < 50; j++) r += ch[Math.floor(Math.random() * ch.length)];
+      r += '</span>';
+      lines.push(r);
     }
-    lines.push('', '<span class="accent bold">  Wake up, Neo... The Matrix has you.</span>', '');
+    lines.push('', '<span class="a b">  Wake up, Neo... The Matrix has you.</span>', '');
     return lines;
   },
 
   hack: () => [
     '',
-    '<span class="warning">  Initiating breach sequence...</span>',
-    '<span class="dim">  [▓▓▓▓▓▓▓▓▓▓░░░░░░░░░░░░░░░░] 38%</span>',
-    '<span class="dim">  [▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░░░] 67%</span>',
-    '<span class="dim">  [▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓] 100%</span>',
+    '<span class="w">  Initiating breach sequence...</span>',
+    '<span class="d">  [▓▓▓▓▓▓▓▓▓▓░░░░░░░░░░░░░░░░] 38%</span>',
+    '<span class="d">  [▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░░░] 67%</span>',
+    '<span class="d">  [▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓] 100%</span>',
     '',
-    '<span class="highlight">  ACCESS DENIED.</span>',
-    '<span class="dim">  Nice try! This terminal is for exploring, not hacking.</span>',
+    '<span class="h">  ACCESS DENIED.</span>',
+    '<span class="d">  Nice try! This terminal is for exploring, not hacking.</span>',
     '',
   ],
 
   secret: () => [
     '',
-    '<span class="accent bold">  You found a secret!</span>',
+    '<span class="a b">  You found a secret!</span>',
     '',
-    '<span class="output">  The real treasure was the code we shipped along the way.</span>',
-    '<span class="dim">  ...or was it? Type more commands to find out.</span>',
+    '<span class="o">  The real treasure was the code we shipped along the way.</span>',
     '',
   ],
 
   moo: () => [
     '',
-    '<span class="accent">         ^__^</span>',
-    '<span class="accent">         (oo)\\_______</span>',
-    '<span class="accent">         (__)\\       )\\/\\</span>',
-    '<span class="accent">             ||----w |</span>',
-    '<span class="accent">             ||     ||</span>',
+    '<span class="a">         ^__^</span>',
+    '<span class="a">         (oo)\\_______</span>',
+    '<span class="a">         (__)\\       )\\/\\</span>',
+    '<span class="a">             ||----w |</span>',
+    '<span class="a">             ||     ||</span>',
     '',
-    '<span class="warning">  Have you mooed today?</span>',
+    '<span class="w">  Have you mooed today?</span>',
     '',
   ],
 };
 
-const GREETINGS = ['hi', 'hello', 'hey', 'hola', 'sup', 'yo', 'greetings', 'howdy', 'namaste'];
+const GREET = ['hi','hello','hey','hola','sup','yo','greetings','howdy','namaste'];
 
-function greetingResponse() {
-  const hour = new Date().getHours();
-  const g = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+function greet() {
+  const h = new Date().getHours();
+  const g = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
   return [
     '',
-    '  <span class="success bold">' + g + '! Nice to meet you!</span>',
+    '  <span class="s b">' + g + '! Nice to meet you!</span>',
     '',
-    '  <span class="output">I\'m <span class="accent bold">Akhilesh Singh Bhadauriya</span>, a Software Development</span>',
-    '  <span class="output">Engineer at <span class="accent">Nammayatri</span>, building high-performance</span>',
-    '  <span class="output">distributed systems that move millions of people daily.</span>',
+    '  <span class="o">I\'m <span class="a b">Akhilesh Singh Bhadauriya</span>, a Software Development</span>',
+    '  <span class="o">Engineer at <span class="a">Nammayatri</span>, building high-performance</span>',
+    '  <span class="o">distributed systems that move millions of people daily.</span>',
     '',
-    '  <span class="dim">When I\'m not shipping code, I\'m competing on</span>',
-    '  <span class="dim">CodeForces (<span class="success">Expert</span>) & CodeChef (<span class="success">5-Star</span>).</span>',
+    '  <span class="d">When I\'m not shipping code, I\'m competing on</span>',
+    '  <span class="d">CodeForces (<span class="s">Expert</span>) & CodeChef (<span class="s">5-Star</span>).</span>',
     '',
-    '  <span class="output">Feel free to explore — type <span class="accent">help</span> to see what I can do!</span>',
+    '  <span class="o">Feel free to explore — type <span class="a">help</span> to see what I can do!</span>',
     '',
   ];
 }
 
-// ASCII art boot
-const BOOT_LINES = [
-  '<span class="dim">Last login: ' + new Date().toDateString() + ' on ttys001</span>',
+// ── Boot ──
+const BOOT = [
+  '<span class="d">Last login: ' + new Date().toDateString() + ' on ttys001</span>',
   '',
-  '<span class="accent">   █████╗ ██╗  ██╗██╗██╗     ███████╗███████╗██╗  ██╗</span>',
-  '<span class="accent">  ██╔══██╗██║ ██╔╝██║██║     ██╔════╝██╔════╝██║  ██║</span>',
-  '<span class="accent">  ███████║█████╔╝ ██║██║     █████╗  ███████╗███████║</span>',
-  '<span class="accent">  ██╔══██║██╔═██╗ ██║██║     ██╔══╝  ╚════██║██╔══██║</span>',
-  '<span class="accent">  ██║  ██║██║  ██╗██║███████╗███████╗███████║██║  ██║</span>',
-  '<span class="accent">  ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚══════╝╚══════╝╚══════╝╚═╝  ╚═╝</span>',
-  '',
-  '<span class="success bold">  Welcome to Akhilesh\'s Terminal!</span>',
-  '  <span class="dim">Type</span> <span class="accent">help</span> <span class="dim">to see available commands.</span>',
+  '<span class="s b">  Welcome to Akhilesh\'s Terminal!</span>',
+  '  <span class="d">Type</span> <span class="a">help</span> <span class="d">to see available commands.</span>',
   '',
 ];
 
-function promptHTML() {
-  return '<span class="prompt">akhilesh</span><span class="dim">@</span><span class="path">macbook</span> <span class="dim">~ %</span> ';
-}
-
-function addLines(lines, animate) {
-  if (animate) {
-    isAnimating = true;
-    let i = 0;
-    function next() {
-      if (i >= lines.length) { isAnimating = false; return; }
-      const div = document.createElement('div');
-      div.className = 'line';
-      div.innerHTML = lines[i] || '&nbsp;';
-      terminal.appendChild(div);
-      scrollToBottom();
-      i++;
-      setTimeout(next, 30);
-    }
-    next();
-  } else {
-    lines.forEach(line => {
-      const div = document.createElement('div');
-      div.className = 'line';
-      div.innerHTML = line || '&nbsp;';
-      terminal.appendChild(div);
-    });
-  }
-}
-
-function addCommandLine(cmd) {
-  const div = document.createElement('div');
-  div.className = 'line no-anim';
-  div.innerHTML = promptHTML() + '<span class="cmd">' + escapeHTML(cmd) + '</span>';
-  terminal.appendChild(div);
-}
-
-function escapeHTML(str) {
-  const d = document.createElement('div');
-  d.textContent = str;
-  return d.innerHTML;
-}
-
-function createInputLine() {
-  const wrapper = document.createElement('div');
-  wrapper.className = 'input-line';
-  wrapper.innerHTML = promptHTML();
-
-  const input = document.createElement('input');
-  input.type = 'text';
-  input.spellcheck = false;
-  input.autocomplete = 'off';
-  input.autofocus = true;
-  input.setAttribute('aria-label', 'Terminal input');
-
-  let historyIndex = -1;
-
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      const fullInput = input.value.trim();
-      const cmd = fullInput.split(/\s+/)[0].toLowerCase();
-      wrapper.remove();
-      addCommandLine(fullInput || '');
-
-      if (cmd === '') {
-        // empty
-      } else if (cmd === 'clear') {
-        terminal.innerHTML = '';
-      } else if (GREETINGS.includes(cmd)) {
-        commandHistory.push(fullInput);
-        addLines(greetingResponse(), true);
-      } else if (COMMANDS[cmd]) {
-        commandHistory.push(fullInput);
-        const result = COMMANDS[cmd]();
-        addLines(result, true);
-      } else {
-        commandHistory.push(fullInput);
-        addLines([
-          '<span class="highlight">  zsh: command not found: ' + escapeHTML(cmd) + '</span>',
-          '  <span class="dim">Type</span> <span class="accent">help</span> <span class="dim">to see available commands.</span>',
-          '',
-        ], false);
-      }
-
-      historyIndex = -1;
-      // Delay input creation if animating
-      const wait = isAnimating ? 50 : 0;
-      setTimeout(() => { createInputLine(); scrollToBottom(); }, wait);
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      if (commandHistory.length > 0) {
-        if (historyIndex === -1) historyIndex = commandHistory.length;
-        historyIndex = Math.max(0, historyIndex - 1);
-        input.value = commandHistory[historyIndex];
-      }
-    } else if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      if (historyIndex !== -1) {
-        historyIndex = Math.min(commandHistory.length, historyIndex + 1);
-        input.value = historyIndex === commandHistory.length ? '' : commandHistory[historyIndex];
-      }
-    } else if (e.key === 'Tab') {
-      e.preventDefault();
-      const partial = input.value.trim().split(/\s+/)[0].toLowerCase();
-      if (partial) {
-        const all = Object.keys(COMMANDS).concat(['clear']);
-        const matches = all.filter(c => c.startsWith(partial));
-        if (matches.length === 1) input.value = matches[0];
-      }
-    } else if (e.key === 'c' && e.ctrlKey) {
-      e.preventDefault();
-      wrapper.remove();
-      addCommandLine(input.value + '^C');
-      createInputLine();
-      scrollToBottom();
-    } else if (e.key === 'l' && e.ctrlKey) {
-      e.preventDefault();
-      terminal.innerHTML = '';
-      createInputLine();
-    }
-  });
-
-  wrapper.appendChild(input);
-  terminal.appendChild(wrapper);
-  input.focus();
-}
-
-function scrollToBottom() {
-  terminal.scrollTop = terminal.scrollHeight;
-}
-
-document.addEventListener('click', () => {
-  const input = terminal.querySelector('.input-line input');
-  if (input) input.focus();
-});
-
-// Boot with animation
-addLines(BOOT_LINES, true);
-setTimeout(createInputLine, BOOT_LINES.length * 30 + 100);
+addLines(BOOT, () => { makeInput(); });
 </script>
 </body>
 </html>
