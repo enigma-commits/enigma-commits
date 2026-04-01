@@ -355,7 +355,7 @@ function spawnSparks(x, y) {
 // ═══════════════════════════════════════
 // VIRTUAL FILESYSTEM
 // ═══════════════════════════════════════
-const FS = {
+const DEFAULT_FS = {
   '~': {
     _type: 'dir',
     'projects': {
@@ -396,7 +396,35 @@ const FS = {
   }
 };
 
-let cwd = '~';
+// localStorage persistence
+const FS_STORAGE_KEY = 'terminal_fs';
+const CWD_STORAGE_KEY = 'terminal_cwd';
+
+function loadFS() {
+  try {
+    const saved = localStorage.getItem(FS_STORAGE_KEY);
+    if (saved) return JSON.parse(saved);
+  } catch (e) {}
+  return JSON.parse(JSON.stringify(DEFAULT_FS));
+}
+
+function saveFS() {
+  try {
+    localStorage.setItem(FS_STORAGE_KEY, JSON.stringify(FS));
+    localStorage.setItem(CWD_STORAGE_KEY, cwd);
+  } catch (e) {}
+}
+
+function loadCwd() {
+  try {
+    const saved = localStorage.getItem(CWD_STORAGE_KEY);
+    if (saved) return saved;
+  } catch (e) {}
+  return '~';
+}
+
+const FS = loadFS();
+let cwd = loadCwd();
 
 function resolvePath(path) {
   if (!path) return cwd;
@@ -469,12 +497,13 @@ const BASH = {
   },
 
   cd: (args) => {
-    if (!args[0] || args[0] === '~') { cwd = '~'; return []; }
+    if (!args[0] || args[0] === '~') { cwd = '~'; saveFS(); return []; }
     const target = resolvePath(args[0]);
     const node = getNode(target);
     if (!node) return ['  <span class="h">cd: no such directory: ' + esc(args[0]) + '</span>'];
     if (node._type === 'file') return ['  <span class="h">cd: not a directory: ' + esc(args[0]) + '</span>'];
     cwd = target;
+    saveFS();
     return [];
   },
 
@@ -499,6 +528,7 @@ const BASH = {
     if (!parent) return ['  <span class="h">mkdir: cannot create: parent not found</span>'];
     if (parent[name]) return ['  <span class="h">mkdir: ' + esc(name) + ': already exists</span>'];
     parent[name] = { _type: 'dir' };
+    saveFS();
     return [];
   },
 
@@ -507,7 +537,7 @@ const BASH = {
     const target = resolvePath(args[0]);
     const { parent, name } = getParentAndName(target);
     if (!parent) return ['  <span class="h">touch: cannot create: parent not found</span>'];
-    if (!parent[name]) parent[name] = { _type: 'file', content: '' };
+    if (!parent[name]) { parent[name] = { _type: 'file', content: '' }; saveFS(); }
     return [];
   },
 
@@ -521,6 +551,7 @@ const BASH = {
     if (!pn.parent || !pn.parent[pn.name]) return ['  <span class="h">rm: ' + esc(name) + ': No such file</span>'];
     if (pn.parent[pn.name]._type === 'dir' && !flag) return ['  <span class="h">rm: ' + esc(name) + ': is a directory (use -rf)</span>'];
     delete pn.parent[pn.name];
+    saveFS();
     return [];
   },
 
@@ -535,6 +566,7 @@ const BASH = {
       if (!parent) return ['  <span class="h">echo: cannot write: parent not found</span>'];
       if (parent[name] && parent[name]._type === 'dir') return ['  <span class="h">echo: ' + esc(name) + ': Is a directory</span>'];
       parent[name] = { _type: 'file', content: text };
+      saveFS();
       return [];
     }
     // Handle echo "text" >> file (append)
@@ -550,6 +582,7 @@ const BASH = {
         if (!parent) return ['  <span class="h">echo: cannot write: parent not found</span>'];
         parent[name] = { _type: 'file', content: text };
       }
+      saveFS();
       return [];
     }
     return ['  <span class="o">' + esc(full.replace(/^["']|["']$/g, '')) + '</span>'];
@@ -581,6 +614,12 @@ const BASH = {
 
   whoami: () => ['  <span class="o">akhilesh</span>'],
   hostname: () => ['  <span class="o">macbook</span>'],
+  reset: () => {
+    localStorage.removeItem(FS_STORAGE_KEY);
+    localStorage.removeItem(CWD_STORAGE_KEY);
+    location.reload();
+    return [];
+  },
   date: () => ['  <span class="o">' + new Date().toString() + '</span>'],
   uname: () => ['  <span class="o">Darwin macbook 23.1.0 arm64</span>'],
 
@@ -1344,6 +1383,7 @@ function openVim(fname) {
     if (parent) {
       parent[name] = { _type: 'file', content: textarea.value };
       modified = false;
+      saveFS();
       return true;
     }
     return false;
