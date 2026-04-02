@@ -48,7 +48,7 @@ export default {
 
       // Option A: Cloudflare Workers AI (free, no key needed)
       if (env.AI) {
-        const result = await env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
+        const result = await env.AI.run('@cf/meta/llama-3.2-3b-instruct', {
           messages: [
             { role: 'system', content: system },
             ...chatMessages,
