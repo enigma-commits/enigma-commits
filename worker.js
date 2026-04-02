@@ -32,14 +32,17 @@ export default {
     }
 
     try {
-      const { system, message } = await request.json();
+      const { system, messages } = await request.json();
 
-      if (!message || typeof message !== 'string' || message.length > 500) {
-        return new Response(JSON.stringify({ error: 'Invalid message' }), {
+      if (!messages || !Array.isArray(messages) || messages.length === 0) {
+        return new Response(JSON.stringify({ error: 'Invalid messages' }), {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
+
+      // Limit history to prevent abuse
+      const chatMessages = messages.slice(-20);
 
       let reply;
 
@@ -48,7 +51,7 @@ export default {
         const result = await env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
           messages: [
             { role: 'system', content: system },
-            { role: 'user', content: message },
+            ...chatMessages,
           ],
           max_tokens: 300,
           temperature: 0.7,
@@ -58,12 +61,17 @@ export default {
       // Option B: Gemini (free tier key)
       else if (env.GEMINI_KEY) {
         const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${env.GEMINI_KEY}`;
+        // Convert chat history to Gemini format
+        const contents = chatMessages.map(m => ({
+          role: m.role === 'assistant' ? 'model' : 'user',
+          parts: [{ text: m.content }],
+        }));
         const geminiRes = await fetch(geminiUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             system_instruction: { parts: [{ text: system }] },
-            contents: [{ role: 'user', parts: [{ text: message }] }],
+            contents,
             generationConfig: { temperature: 0.7, maxOutputTokens: 300, topP: 0.9 },
           }),
         });

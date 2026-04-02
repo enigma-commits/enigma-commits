@@ -1233,6 +1233,7 @@ function makeAIInput() {
 
       if (raw.toLowerCase() === 'exit' || raw.toLowerCase() === 'quit') {
         aiMode = false;
+        aiHistory = [];
         addLines([
           '',
           '  <span class="d">Exited AI chat mode.</span>',
@@ -1618,6 +1619,20 @@ Meta Hackercup: Qualified Round 2, ranked 824 out of 12,330
 ICPC Regionalist: Kanpur (Rank 56) and Amritapuri regions`;
 
 let aiAbort = null;
+let aiHistory = [];
+
+function cleanReply(reply) {
+  return reply
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    .replace(/\*(.+?)\*/g, '$1')
+    .replace(/#{1,6}\s*/g, '')
+    .replace(/```[\s\S]*?```/g, '')
+    .replace(/`(.+?)`/g, '$1')
+    .replace(/^[-•]\s*/gm, '  ')
+    .replace(/^\d+\.\s*/gm, '  ')
+    .replace(/\[(.+?)\]\(.+?\)/g, '$1')
+    .trim();
+}
 
 async function askAI(question) {
   if (!AI_PROXY_URL) {
@@ -1639,6 +1654,9 @@ async function askAI(question) {
 
   aiAbort = new AbortController();
 
+  // Add current question to history
+  aiHistory.push({ role: 'user', content: question });
+
   try {
     const fullPrompt = SYSTEM_PROMPT + '\n\nLIVE GITHUB DATA:\n' + githubContext;
 
@@ -1647,7 +1665,7 @@ async function askAI(question) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         system: fullPrompt,
-        message: question,
+        messages: aiHistory,
       }),
       signal: aiAbort.signal,
     });
@@ -1656,18 +1674,11 @@ async function askAI(question) {
 
     const data = await res.json();
     let reply = data.reply || 'Sorry, I could not process that.';
+    reply = cleanReply(reply);
 
-    // Strip markdown artifacts
-    reply = reply
-      .replace(/\*\*(.+?)\*\*/g, '$1')   // **bold** → bold
-      .replace(/\*(.+?)\*/g, '$1')        // *italic* → italic
-      .replace(/#{1,6}\s*/g, '')           // # headers
-      .replace(/```[\s\S]*?```/g, '')      // code blocks
-      .replace(/`(.+?)`/g, '$1')          // inline code
-      .replace(/^[-•]\s*/gm, '  ')        // bullet points
-      .replace(/^\d+\.\s*/gm, '  ')       // numbered lists
-      .replace(/\[(.+?)\]\(.+?\)/g, '$1') // [text](url) → text
-      .trim();
+    // Save assistant reply to history (keep last 20 messages to avoid huge payloads)
+    aiHistory.push({ role: 'assistant', content: reply });
+    if (aiHistory.length > 20) aiHistory = aiHistory.slice(-20);
 
     // Remove the "Thinking..." line
     const thinkingLine = T.querySelector('.line:last-of-type');
@@ -1683,6 +1694,8 @@ async function askAI(question) {
     lines.push('');
     return lines;
   } catch (err) {
+    // Remove last user message if request failed
+    aiHistory.pop();
     aiAbort = null;
     if (err.name === 'AbortError') {
       return null; // cancelled — Ctrl+C handler already cleaned up
@@ -1973,6 +1986,7 @@ document.addEventListener('keydown', (e) => {
       if (aiMode) {
         addLine('<span class="s b">ai</span><span class="d">&gt;</span> <span class="c">' + esc(val) + '^C</span>', false);
         aiMode = false;
+        aiHistory = [];
         addLine('  <span class="d">Exited AI chat mode.</span>', false);
         addLine('', false);
       } else {
