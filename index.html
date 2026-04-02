@@ -1042,6 +1042,12 @@ function addCmd(text) {
 }
 
 function makeInput() {
+  // If in AI chat mode, use the chat input instead
+  if (aiChatMode) {
+    makeAIChatInput();
+    return;
+  }
+
   const wrap = document.createElement('div');
   wrap.className = 'input-line';
   wrap.innerHTML = pr();
@@ -1084,17 +1090,25 @@ function makeInput() {
         T.innerHTML = '';
         makeInput();
       } else if (cmd === 'ai') {
-        const question = raw.substring(2).trim();
+        const args = raw.substring(2).trim();
+        // Check for interactive mode flag
+        if (args === '-i' || args === '--interactive') {
+          startAIChat();
+          return;
+        }
+        const question = args;
         if (!question) {
           run([
             '',
             '  <span class="hd">Usage:</span> <span class="a">ai</span> <span class="o">&lt;your question&gt;</span>',
+            '  <span class="hd">       ai -i</span> <span class="o">(interactive chat mode)</span>',
             '',
             '  <span class="d">Examples:</span>',
             '  <span class="a">  ai</span> <span class="o">what does akhilesh do?</span>',
             '  <span class="a">  ai</span> <span class="o">what tech stack does he use?</span>',
             '  <span class="a">  ai</span> <span class="o">what is he currently working on?</span>',
             '  <span class="a">  ai</span> <span class="o">tell me about his competitive programming</span>',
+            '  <span class="a">  ai -i</span> <span class="o">(start interactive chat session)</span>',
             '',
           ]);
         } else {
@@ -1223,6 +1237,7 @@ const CMD = {
     '  <span class="a">contributions</span>   <span class="d">→</span>  <span class="o">Recent open-source work</span>',
     '  <span class="a">contact</span>         <span class="d">→</span>  <span class="o">How to reach me</span>',
     '  <span class="a">ai</span> <span class="d">&lt;question&gt;</span>   <span class="d">→</span>  <span class="o">Ask AI anything about me</span>',
+    '  <span class="a">ai -i</span>           <span class="d">→</span>  <span class="o">Interactive AI chat mode</span>',
     '  <span class="a">hi / hello</span>      <span class="d">→</span>  <span class="o">Say hello!</span>',
     '  <span class="a">clear</span>           <span class="d">→</span>  <span class="o">Clear the terminal</span>',
     '<span class="d">  ───────────────────────────────────────────────</span>',
@@ -1365,6 +1380,184 @@ const CMD = {
   ],
 
   // Easter eggs
+// ════════════════════════════════════════════════════════════════
+// INTERACTIVE AI CHAT MODE
+// ════════════════════════════════════════════════════════════════
+let aiChatMode = false;
+let aiChatHistory = [];
+
+function startAIChat() {
+  aiChatMode = true;
+  aiChatHistory = [];
+  const lines = [
+    '',
+    '  <span class="s b">╔═══════════════════════════════════════════════════════════╗</span>',
+    '  <span class="s b">║</span>  <span class="a b">Interactive AI Chat Mode</span>                                <span class="s b">║</span>',
+    '  <span class="s b">╠═══════════════════════════════════════════════════════════╣</span>',
+    '  <span class="s b">║</span>  <span class="o">Ask me anything about Akhilesh!</span>                        <span class="s b">║</span>',
+    '  <span class="s b">║</span>  <span class="d">Type</span> <span class="w">exit</span> <span class="d">or</span> <span class="w">/quit</span> <span class="d">to leave chat mode</span>              <span class="s b">║</span>',
+    '  <span class="s b">║</span>  <span class="d">Type</span> <span class="w">/clear</span> <span class="d">to clear chat history</span>                    <span class="s b">║</span>',
+    '  <span class="s b">╚═══════════════════════════════════════════════════════════╝</span>',
+    '',
+    '  <span class="d">🤖 AI:</span> <span class="o">Hey there! I\'m Akhilesh\'s AI assistant. What would you like to know about him?</span>',
+    '',
+  ];
+  run(lines);
+}
+
+function makeAIChatInput() {
+  const wrap = document.createElement('div');
+  wrap.className = 'input-line';
+  wrap.innerHTML = '<span class="a">🤖 you</span><span class="d">:</span> ';
+
+  const inp = document.createElement('input');
+  inp.type = 'text';
+  inp.spellcheck = false;
+  inp.autocomplete = 'off';
+  inp.setAttribute('aria-label', 'AI Chat input');
+
+  inp.addEventListener('keydown', async (e) => {
+    if (e.key === 'Enter') {
+      const raw = inp.value.trim();
+      const lower = raw.toLowerCase();
+      wrap.remove();
+      inputEl = null;
+
+      // Show user message
+      addLine('<span class="a">🤖 you:</span> <span class="c">' + esc(raw) + '</span>', false);
+
+      // Handle special commands
+      if (lower === 'exit' || lower === '/quit' || lower === 'quit' || lower === '/exit') {
+        aiChatMode = false;
+        aiChatHistory = [];
+        addLine('', false);
+        addLine('  <span class="s">👋 Exited AI chat mode. Back to terminal!</span>', false);
+        addLine('', false);
+        makeInput();
+        return;
+      }
+
+      if (lower === '/clear' || lower === 'clear') {
+        T.innerHTML = '';
+        aiChatHistory = [];
+        const lines = [
+          '',
+          '  <span class="s b">╔═══════════════════════════════════════════════════════════╗</span>',
+          '  <span class="s b">║</span>  <span class="a b">Interactive AI Chat Mode</span>                                <span class="s b">║</span>',
+          '  <span class="s b">╚═══════════════════════════════════════════════════════════╝</span>',
+          '',
+          '  <span class="d">🤖 AI:</span> <span class="o">Chat history cleared! What would you like to know?</span>',
+          '',
+        ];
+        run(lines);
+        return;
+      }
+
+      if (!raw) {
+        makeAIChatInput();
+        return;
+      }
+
+      // Add to history
+      aiChatHistory.push({ role: 'user', content: raw });
+
+      // Show thinking indicator
+      const thinkingDiv = document.createElement('div');
+      thinkingDiv.className = 'line';
+      thinkingDiv.innerHTML = '  <span class="d">🤖 AI is typing</span><span class="d" id="typing-dots">...</span>';
+      T.appendChild(thinkingDiv);
+      scroll();
+
+      // Animate dots
+      let dots = 0;
+      const dotInterval = setInterval(() => {
+        dots = (dots + 1) % 4;
+        const d = document.getElementById('typing-dots');
+        if (d) d.textContent = '.'.repeat(dots || 1);
+      }, 400);
+
+      // Build conversation context
+      let conversationContext = SYSTEM_PROMPT + '\n\nLIVE GITHUB DATA:\n' + githubContext;
+      if (aiChatHistory.length > 1) {
+        conversationContext += '\n\nCONVERSATION HISTORY:\n';
+        aiChatHistory.slice(0, -1).forEach(msg => {
+          conversationContext += `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}\n`;
+        });
+      }
+
+      // Call AI
+      try {
+        const res = await fetch(AI_PROXY_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            system: conversationContext,
+            message: raw,
+          }),
+        });
+
+        clearInterval(dotInterval);
+        thinkingDiv.remove();
+
+        if (!res.ok) throw new Error('AI request failed');
+
+        const data = await res.json();
+        let reply = data.reply || 'Sorry, I could not process that.';
+
+        // Strip markdown
+        reply = reply
+          .replace(/\*\*(.+?)\*\*/g, '$1')
+          .replace(/\*(.+?)\*/g, '$1')
+          .replace(/#{1,6}\s*/g, '')
+          .replace(/```[\s\S]*?```/g, '')
+          .replace(/`(.+?)`/g, '$1')
+          .replace(/^[-•]\s*/gm, '  ')
+          .replace(/^\d+\.\s*/gm, '  ')
+          .replace(/\[(.+?)\]\(.+?\)/g, '$1')
+          .trim();
+
+        // Add to history
+        aiChatHistory.push({ role: 'assistant', content: reply });
+
+        // Show AI response
+        const lines = reply.split('\n');
+        addLine('  <span class="s">🤖 AI:</span> <span class="o">' + esc(lines[0]) + '</span>', false);
+        for (let i = 1; i < lines.length; i++) {
+          addLine('      <span class="o">' + esc(lines[i]) + '</span>', false);
+        }
+        addLine('', false);
+
+        makeAIChatInput();
+      } catch (err) {
+        clearInterval(dotInterval);
+        thinkingDiv.remove();
+        addLine('  <span class="h">🤖 AI:</span> <span class="h">Sorry, I\'m having trouble connecting. Try again!</span>', false);
+        addLine('', false);
+        makeAIChatInput();
+      }
+    } else if (e.key === 'c' && e.ctrlKey) {
+      e.preventDefault();
+      wrap.remove();
+      inputEl = null;
+      addLine('<span class="a">🤖 you:</span> <span class="c">' + esc(inp.value) + '</span><span class="h">^C</span>', false);
+      addLine('', false);
+      aiChatMode = false;
+      aiChatHistory = [];
+      addLine('  <span class="s">👋 Exited AI chat mode.</span>', false);
+      addLine('', false);
+      makeInput();
+    }
+  });
+
+  wrap.appendChild(inp);
+  T.appendChild(wrap);
+  inputEl = wrap;
+  inp.focus();
+  scroll();
+}
+
+// ════════════════════════════════════════════════════════════════
+
   sudo: () => [
     '',
     '<span class="w">  [sudo] password for akhilesh: ********</span>',
