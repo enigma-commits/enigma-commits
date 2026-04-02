@@ -1005,6 +1005,7 @@ const BASH = {
 const T = document.getElementById('t');
 const history = [];
 let inputEl = null;
+let aiMode = false;
 
 function pr() {
   const dir = cwd === '~' ? '~' : cwd.split('/').pop();
@@ -1089,14 +1090,22 @@ function makeInput() {
           run([
             '',
             '  <span class="hd">Usage:</span> <span class="a">ai</span> <span class="o">&lt;your question&gt;</span>',
+            '  <span class="hd">      </span> <span class="a">ai -i</span> <span class="o">Enter interactive AI chat mode</span>',
             '',
             '  <span class="d">Examples:</span>',
             '  <span class="a">  ai</span> <span class="o">what does akhilesh do?</span>',
             '  <span class="a">  ai</span> <span class="o">what tech stack does he use?</span>',
-            '  <span class="a">  ai</span> <span class="o">what is he currently working on?</span>',
-            '  <span class="a">  ai</span> <span class="o">tell me about his competitive programming</span>',
+            '  <span class="a">  ai -i</span> <span class="o">(starts interactive chat, type exit to leave)</span>',
             '',
           ]);
+        } else if (question === '-i') {
+          aiMode = true;
+          addLines([
+            '',
+            '  <span class="s b">Entering AI chat mode...</span>',
+            '  <span class="d">Ask me anything about Akhilesh. Type <span class="a">exit</span> or <span class="a">quit</span> to leave.</span>',
+            '',
+          ], () => { makeAIInput(); });
         } else {
           // AI is async — handle differently
           askAI(question).then(lines => { if (lines) run(lines); });
@@ -1201,6 +1210,56 @@ function run(lines) {
   addLines(lines, () => { makeInput(); });
 }
 
+function makeAIInput() {
+  const wrap = document.createElement('div');
+  wrap.className = 'input-line';
+  wrap.innerHTML = '<span class="s b">ai</span><span class="d">&gt;</span> ';
+
+  const inp = document.createElement('input');
+  inp.type = 'text';
+  inp.spellcheck = false;
+  inp.autocomplete = 'off';
+  inp.setAttribute('aria-label', 'AI chat input');
+  inp.setAttribute('placeholder', 'Ask about Akhilesh...');
+
+  inp.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      const raw = inp.value.trim();
+      wrap.remove();
+      inputEl = null;
+      addLine('<span class="s b">ai</span><span class="d">&gt;</span> <span class="c">' + esc(raw || '') + '</span>', false);
+
+      if (!raw) { makeAIInput(); return; }
+
+      if (raw.toLowerCase() === 'exit' || raw.toLowerCase() === 'quit') {
+        aiMode = false;
+        addLines([
+          '',
+          '  <span class="d">Exited AI chat mode.</span>',
+          '',
+        ], () => { makeInput(); });
+        return;
+      }
+
+      askAI(raw).then(lines => {
+        if (lines) {
+          addLines(lines, () => { makeAIInput(); });
+        } else {
+          makeAIInput(); // cancelled via Ctrl+C
+        }
+      });
+    } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+      e.preventDefault();
+    }
+  });
+
+  wrap.appendChild(inp);
+  T.appendChild(wrap);
+  inputEl = wrap;
+  inp.focus();
+  scroll();
+}
+
 document.addEventListener('click', () => {
   const inp = T.querySelector('.input-line input');
   if (inp) inp.focus();
@@ -1223,6 +1282,7 @@ const CMD = {
     '  <span class="a">contributions</span>   <span class="d">→</span>  <span class="o">Recent open-source work</span>',
     '  <span class="a">contact</span>         <span class="d">→</span>  <span class="o">How to reach me</span>',
     '  <span class="a">ai</span> <span class="d">&lt;question&gt;</span>   <span class="d">→</span>  <span class="o">Ask AI anything about me</span>',
+    '  <span class="a">ai -i</span>           <span class="d">→</span>  <span class="o">Interactive AI chat mode</span>',
     '  <span class="a">hi / hello</span>      <span class="d">→</span>  <span class="o">Say hello!</span>',
     '  <span class="a">clear</span>           <span class="d">→</span>  <span class="o">Clear the terminal</span>',
     '<span class="d">  ───────────────────────────────────────────────</span>',
@@ -1900,17 +1960,24 @@ document.addEventListener('keydown', (e) => {
       }
       addLine('  <span class="h">^C</span>', false);
       addLine('', false);
-      makeInput();
+      if (aiMode) makeAIInput(); else makeInput();
       e.preventDefault();
       return;
     }
-    // Cancel current input line
+    // Cancel current input line (in AI mode, exit AI mode)
     if (inputEl) {
       const inp = inputEl.querySelector('input');
       const val = inp ? inp.value : '';
       inputEl.remove();
       inputEl = null;
-      addCmd(val + '^C');
+      if (aiMode) {
+        addLine('<span class="s b">ai</span><span class="d">&gt;</span> <span class="c">' + esc(val) + '^C</span>', false);
+        aiMode = false;
+        addLine('  <span class="d">Exited AI chat mode.</span>', false);
+        addLine('', false);
+      } else {
+        addCmd(val + '^C');
+      }
       makeInput();
       e.preventDefault();
     }
